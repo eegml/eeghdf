@@ -9,17 +9,17 @@ import numpy as np
 from matplotlib.pyplot import *
 from matplotlib.collections import LineCollection
 
-def stackplot(marray, seconds=None, start_time=None, ylabels=None):
+def stackplot(marray, seconds=None, start_time=None, ylabels=None, yscale=1.0):
     """
     will plot a stack of traces one above the other assuming
     marray.shape = numRows, numSamples
     """
     tarray = np.transpose(marray)
-    stackplot_t(tarray, seconds=seconds, start_time=start_time, ylabels=ylabels)
+    stackplot_t(tarray, seconds=seconds, start_time=start_time, ylabels=ylabels, yscale=yscale)
 
 
 
-def stackplot_t(tarray, seconds=None, start_time=None, ylabels=None):
+def stackplot_t(tarray, seconds=None, start_time=None, ylabels=None, yscale=1.0):
     """
     will plot a stack of traces one above the other assuming
     tarray.shape =  numSamples, numRows
@@ -48,7 +48,7 @@ def stackplot_t(tarray, seconds=None, start_time=None, ylabels=None):
     # xticks(np.linspace(xlm, 10))
     dmin = data.min()
     dmax = data.max()
-    dr = (dmax - dmin)*0.7 # Crowd them a bit.
+    dr = (dmax - dmin)*0.7*yscale # Crowd them a bit.
     y0 = dmin
     y1 = (numRows-1) * dr + dmax
     ylim(y0, y1)
