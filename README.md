@@ -7,8 +7,7 @@ Project to develop a easily accessible forbfor storing EEG in a way that is easy
 - look to add field for montagrs and electrode geometry
 
 ###To Do
-- [x] code to write file , initial versionnis 1000
-- [] code to write back to edf
-
-- [] more visualization code
-- [] add study admin code to record info (do not seem to include this now, e.g. EEG No like V17-105)
+ - [x] code to write file , initial versionnis 1000
+ - [] code to write back to edf 
+ - [] more visualization code
+ - [] add study admin code to record info (do not seem to include this now, e.g. EEG No like V17-105)
