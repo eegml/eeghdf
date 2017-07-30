@@ -6,7 +6,7 @@ Project to develop a easily accessible forbfor storing EEG in a way that is easy
 - look to add fields for clinical report text
 - look to add field for montagrs and electrode geometry
 
-###To Do
+### To Do
 - [x] code to write file , initial versionnis 1000
 - [] code to write back to edf 
 - [] more visualization code
