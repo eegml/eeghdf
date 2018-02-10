@@ -34,6 +34,9 @@ If this occurs, I will raise an error --- maybe a simple way in the future to de
 
 Each Record block is this a uniformly sampled set of datapoints with the same sampling frequency. The eeg sample data is stored in HDF5 dataset which is essentially a rectangular array.
 
+For the future, I will be watching NWB - neurodata without borders - this specifies an hdf5 schema for 
+neurophysiology data which is extensible
+
 One big question going forward is how to store strings -
 - option 1: everything is ascii, straighforward but ignores a lot of other possible names
 - option 2: everything is unicode/utf-8 which looks like ascii until you need the extra characters
