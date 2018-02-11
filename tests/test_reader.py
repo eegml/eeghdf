@@ -34,5 +34,15 @@ def test_min_maxes():
        -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768,
        -32768, -32768, -32768, -32768]))
 
+def test_phys_signals():
+    '''mostly just a smoke test of zero-offset physSignal object'''
+    x = 1420
+    eeg.phys_signals[:, x * 200:x * 200 + 10 * 200]
+    print(eeg.phys_signals.shape)
+    eeg.phys_signals[4, 0:200]
+    assert eeg.phys_signals[3,4] == 0.0
+    assert abs(eeg.phys_signals[3,400] - 50.0 ) < 0.1 # test calibration 50uV
+
+    eeg.phys_signals[3:5]
 
 eeg = reader.Eeghdf(EEGFILE)    
