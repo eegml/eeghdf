@@ -9,6 +9,7 @@ from __future__ import print_function, unicode_literals
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 from past.utils import old_div
 
+import numpy as np
 import h5py
 import pandas as pd # maybe shouldn't require pandas in basic file so look to eliminate
 
@@ -48,6 +49,21 @@ def record_edf_annotations_to_sec_items(raw_edf_annotations):
 
 ## let's try a first draft to get a feel for things
 
+class PhysSignal:
+    def __init__(self, data,S2U, offset):
+        self.data = data # hdf data array
+        self.offset = offset
+        self.S2U = S2U
+
+    def __getitem__(self,slcitm):
+        if isinstance(slcitm, slice):
+            print("slice", slcitm)
+        elif isinstance(slcitem, tuple):
+            print("multi-dim:", slcitem)
+            # multidim
+
+        else:
+            print('not slice:', slcitm)
 
 class Eeghdf:
     __version__ = 1
@@ -119,7 +135,51 @@ class Eeghdf:
 
     @property
     def signal_physical_mins(self):
+        """return numpy ndarray of waveform physical_mins"""
         return self.hdf['record-0']['signal_physical_mins'][:]
+
+    @property
+    def signal_physical_maxs(self):
+        """return numpy ndarray of waveform physical_maxs"""
+        return self.hdf['record-0']['signal_physical_maxs'][:]
+
+    @property
+    def signal_digital_mins(self):
+        return self.hdf['record-0']['signal_digital_mins'][:]
+
+    @property
+    def signal_digital_maxs(self):
+        return self.hdf['record-0']['signal_digital_maxs'][:]
+
+
+    def _calc_sample2units(self):
+        """
+        calculate the arrays and matrices used to convert sample values to real physical values
+        S2U is the scaling/units conversion matrix defined below (units/samples)
+        $ V_{physical} = S2U [V_{sample} + offset] $
+        note the offset is often zero with many recordings so can be dropped
+        :return: None
+        """
+        pMax = self.signal_physical_maxs
+        pMin = self.signal_physical_mins
+
+        dMax = self.signal_digital_maxs
+        dMin = self.signal_digital_mins
+        s2u = (pMax - pMin)/(dMax-dMin)
+        S2U = np.diag(s2u)
+        phys_offset = pMax/s2u - dMax # sample units
+        self._phys_offset = phys_offset
+        self._S2U = S2U
+        self._s2u = s2u
+        self._SAMPLE_TO_UNITS = True
+        # if all abs(offset) < 1.0 then can set _SAMPLE_OFFSET_ZERO to true and just use S2U matrix
+
+
+    @property
+    def phys_signal(self):
+        if not self._SAMPLE_TO_UNITS:
+            self._calc_sample2units()
+        return PhysSignal(self.rawsignal, self._s2u, self._phys_offset)
     
     #    self.# record['signal_physical_maxs'] = signal_physical_maxs
     # record['signal_digital_mins'] = signal_digital_mins
