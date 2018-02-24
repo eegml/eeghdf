@@ -242,7 +242,13 @@ def edf2h5_float32(fn, outfn='', hdf_dir='', anonymous=False):
     with edflib.EdfReader(fn) as ef:
         nsigs = ef.signals_in_file
         # again know/assume that this is uniform sampling across signals
-        fs0 = ef.samplefrequency(0)
+        fs = [ef.samplefrequency(ii) for ii in range(nsigs)]
+        fs0 = fs[0]
+
+        if any([ fs0 != xx for xx in fs]):
+            print("caught multiple sampling frquencies in edf files!!!")
+            sys.exit(0)
+        
         nsamples0 = ef.samples_in_file(0)
 
         print('nsigs=%s, fs0=%s, nsamples0=%s' % (nsigs, fs0, nsamples0))
@@ -459,7 +465,13 @@ def edf2hdf_oldhack(fn, outfn='', hdf_dir='', anonymous=False):
         nsigs = ef.signals_in_file
 
         # again know/assume that this is uniform sampling across signals
-        fs0 = ef.samplefrequency(0)
+        fs = [ef.samplefrequency(ii) for ii in range(nsigs)]
+        fs0 = fs[0]
+        print([ fs0 != xx for xx in fs])
+        if any([ fs0 != xx for xx in fs]):
+            print("caught multiple sampling frquencies in edf files!!!")
+            sys.exit(0)
+
         nsamples0 = ef.samples_in_file(0)
         print('nsigs=%s, fs0=%s, nsamples0=%s\n' % (nsigs, fs0, nsamples0))
 
@@ -963,7 +975,59 @@ class AnonymizeTrackHeaderStanford(ValidateTrackHeaderStanford):
             # file needs source and key NK origin
 
 
-            
+def find_blocks(arr):
+    blocks = []
+    print("total arr:", arr)
+    dfs = np.diff(arr)
+    dfs_ind = np.where(dfs != 0.0)[0]
+    last_ind = 0
+    for dd in dfs_ind+1:
+        print("block:",arr[last_ind:dd])
+        blocks.append((last_ind,dd))
+        last_ind = dd
+    print("last block:", arr[last_ind:])
+    blocks.append( (last_ind,len(arr)))
+    return blocks
+
+
+def find_blocks2(arr):
+    blocks = []
+    N = len(arr)
+    print("total arr:", arr)
+    last_ind = 0
+    last_val = arr[0]
+    for ii in range(1,N):
+        if last_val == arr[ii]:
+            pass
+        else:
+            blocks.append((last_ind,ii))
+            last_ind = ii
+            last_val = arr[ii]
+    blocks.append((last_ind,N))
+    return blocks
+
+
+
+def test_find_blocks1():
+    s = [250.0, 250.0, 250.0, 1.0, 1.0, 1000.0, 1000.0]
+    blocks = find_blocks(s)
+    print("blocks:")
+    print(blocks)
+
+
+def test_find_blocks2():
+    s = [250.0, 250.0, 250.0, 1.0, 1.0, 1000.0, 1000.0]
+    blocks = find_blocks2(s)
+    print("blocks:")
+    print(blocks)
+
+def test_find_blocks2_2():
+    s = [100,100,100,100,100,100,100,100]
+    blocks = find_blocks2(s)
+    print("blocks:")
+    print(blocks)
+
+    
 
 def edf2hdf2(fn, outfn='', hdf_dir='', anonymize=False):
     """
@@ -1076,8 +1140,19 @@ def edf2hdf2(fn, outfn='', hdf_dir='', anonymize=False):
         # again know/assume that this is uniform sampling across signals
         fs0 = ef.samplefrequency(0)
         signal_frequency_array = ef.get_signal_freqs()
-
+        dfs = np.diff(signal_frequency_array)
+        dfs_ind = np.where(dfs != 0.0)
+        dfs_ind = dfs_ind[0]
+        last_ind = 0
+        for dd in dfs_ind+1:
+            print("block:",signal_frequency_array[last_ind:dd])
+            last_ind = dd
+        print("last block:", signal_frequency_array[last_ind:])
+        
+        print("where does sampling rate change?", np.where(dfs != 0.0))
+        print("elements:", signal_frequency_array[np.where(dfs != 0.0)])
         print("signal_frequency_array::\n", repr(signal_frequency_array))
+        print("len(signal_frequency_array):", len(signal_frequency_array))
         
         assert all(signal_frequency_array[:-3] == fs0)
 
@@ -1113,7 +1188,7 @@ def edf2hdf2(fn, outfn='', hdf_dir='', anonymize=False):
 
         signal_text_labels = ef.get_signal_text_labels()
         print("signal_text_labels::\n")
-        #pprint.pprint(signal_text_labels)
+        pprint.pprint(signal_text_labels)
         print("normalized text labels::\n")
         signal_text_labels_lpch_normalized = [
             normalize_lpch_signal_label(label) for label in signal_text_labels]
@@ -1176,6 +1251,7 @@ def edf2hdf2(fn, outfn='', hdf_dir='', anonymize=False):
             rec = eegf.create_record_block(record_duration_seconds=header['file_duration_seconds'],
                                            start_isodatetime=str(header['start_datetime']),
                                            end_isodatetime=str(header['end_datetime']),
+
                                            number_channels=header['signals_in_file'],
                                            num_samples_per_channel=nsamples0,
                                            sample_frequency=fs0,
