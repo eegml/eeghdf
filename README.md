@@ -1,13 +1,14 @@
 # eeg-hdfstorage
-Project to develop a easily accessible forbfor storing EEG in a way that is easy to access for machine learning.
+Project to develop a easily accessible format for storing EEG in a way that is easy to access for machine learning.
 - hdf5 based format
 - looked at edf and neo formats, see NWB
 - simplier than neo, but may need more of neo's strucures
+- compare with fif format of mne project to evolve
 - look to add fields for clinical report text
 - look to add field for montages and electrode geometry
 
 ### To Do
-- [x] code to write file , initial versionn is 1000
+- [x] code to write file, target initial release version is 1000
 - [X] initial scripts to convert edf to eeghdf and floating point hdf5
 - [ ] code to write back to edf 
 - [ ] more visualization code
