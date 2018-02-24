@@ -49,6 +49,68 @@ def record_edf_annotations_to_sec_items(raw_edf_annotations):
 
 ## let's try a first draft to get a feel for things
 
+class PhysSignal:
+    """This does a very limited imitation of the normal hdf signal buffer
+    with additional transformation of the returned array coverted to be in physical units
+    e.g. uV or mV
+    @s2u is the array of scaling factors turning samples to units
+    @S2U = diagonal(s2u)
+    @offset is/will be offset to add to sample before scaling
+    data is hdf dataset of sampled data(or numpy array) to transform
+    First implement the zero offset version
+
+    $Y = S2U [X + Offset]$ 
+
+    This is meant to be accessed via the bracket operator
+    phys_signals[a,b]
+    phys_signals[a:b, c:d]
+    phys_signal[a, b:c]
+    phys_signals[a:b, c]
+
+    Anything else has not been tested - I am only testing the first two values of the tuple
+    """
+    def __init__(self, data,s2u, S2U, offset):
+        self.data = data # hdf data array
+        self.s2u = s2u
+        self.S2U = S2U
+        self.offset = offset
+
+    def __getitem__(self,slcitm):
+        if isinstance(slcitm, slice): 
+            # e.g. s[3:5] returning full versions of channels 3,4 with all samples so slcitm represents
+            # channels 
+            # print("slice", slcitm)
+            buf = self.data[slcitm] + self.offset[slcitm]
+            S = self.s2u[slcitm]
+            res = S * buf.T # broadcasting
+            return res.T
+
+        elif isinstance(slcitm, tuple):
+            # print("multi-dim:", slcitm)
+            if isinstance(slcitm[0],slice):
+                # slice a subset of channels
+                ch_slice = slcitm[0]
+                A = self.S2U[ch_slice,ch_slice]
+                buf = self.data.__getitem__(slcitm) + self.offset[ch_slice]
+                return np.dot(A,buf)
+            elif isinstance(slcitm[0],int): # a single channel with subset of samples
+                a = self.s2u[slcitm[0]]
+                return a * (self.data[slcitm] + self.offset[slcitm[0]])
+
+            # multidim
+
+        else:
+            # print('return a chanel:', slcitm)
+            # just a single integer
+            a = self.s2u[slcitm]
+            return a * (self.data[slcitm] + self.offset[slcitm])
+
+
+    @property
+    def shape(self):
+        return self.data.shape
+
+
 class PhysSignalZeroOffset:
     """This does a very limited imitation of the normal hdf signal buffer
     with additional transformation of the returned array coverted to be in physical units
@@ -77,7 +139,8 @@ class PhysSignalZeroOffset:
         # self.offset = offset
 
     def __getitem__(self,slcitm):
-        if isinstance(slcitm, slice): # e.g. s[3:5] returning full versions of channels 3,4 with all samples
+        if isinstance(slcitm, slice): 
+            # e.g. s[3:5] returning full versions of channels 3,4 with all samples
             # print("slice", slcitm)
             buf = self.data[slcitm]
             S = self.s2u[slcitm]
@@ -94,7 +157,7 @@ class PhysSignalZeroOffset:
                 a = self.s2u[slcitm[0]]
                 return a * self.data[slcitm]
 
-            # multidim
+            # end multidim
 
         else:
             # print('return a chanel:', slcitm)
@@ -102,9 +165,14 @@ class PhysSignalZeroOffset:
             return a * self.data[slcitm]
 
             # just a single integer
+
+
     @property
     def shape(self):
         return self.data.shape
+
+
+
 
 class Eeghdf:
     __version__ = 1
@@ -191,7 +259,11 @@ class Eeghdf:
     def signal_digital_maxs(self):
         return self.hdf['record-0']['signal_digital_maxs'][:]
 
-
+    @property
+    def shape(self):
+        return self.rawsignals.shape
+    
+    
     def _calc_sample2units(self):
         """
         calculate the arrays and matrices used to convert sample values to real physical values
@@ -212,7 +284,13 @@ class Eeghdf:
         self._S2U = S2U
         self._s2u = s2u
         self._SAMPLE_TO_UNITS = True
-        # if all abs(offset) < 1.0 then can set _SAMPLE_OFFSET_ZERO to true and just use S2U matrix
+                            
+        if np.all(np.abs(phys_offset) < 1.0):
+            self._phys_signals = PhysSignalZeroOffset(self.rawsignals, self._s2u, self._S2U, self._phys_offset)
+        else:
+            self._phys_signals = PhysSignal(self.rawsignals, self._s2u, self._S2U, self._phys_offset)
+
+                            
 
 
     @property
@@ -221,7 +299,7 @@ class Eeghdf:
             self._calc_sample2units()
             assert np.all(np.abs(self._phys_offset) < 1.0)
             
-        return PhysSignalZeroOffset(self.rawsignals, self._s2u, self._S2U, self._phys_offset)
+        return self._phys_signals
     
     #    self.# record['signal_physical_maxs'] = signal_physical_maxs
     # record['signal_digital_mins'] = signal_digital_mins

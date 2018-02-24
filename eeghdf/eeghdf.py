@@ -15,7 +15,7 @@ EDFHDF
 ------
 EEGHDF is a format for hdf5 files to encapsulate EEG files and other, similar physiological files in a way that is easy to access in the machine learning world
 
-by convention I have been using the ending <filename>.eeg.hdf5
+by convention I have been using the ending <filename>.eeg.hdf5 or <basename>.eeghdf
 
 Sources of motivation::
 -----------------------
