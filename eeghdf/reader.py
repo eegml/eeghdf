@@ -283,13 +283,14 @@ class Eeghdf:
         self._phys_offset = phys_offset
         self._S2U = S2U
         self._s2u = s2u
-        self._SAMPLE_TO_UNITS = True
+
                             
         if np.all(np.abs(phys_offset) < 1.0):
             self._phys_signals = PhysSignalZeroOffset(self.rawsignals, self._s2u, self._S2U, self._phys_offset)
         else:
             self._phys_signals = PhysSignal(self.rawsignals, self._s2u, self._S2U, self._phys_offset)
 
+        self._SAMPLE_TO_UNITS = True
                             
 
 
