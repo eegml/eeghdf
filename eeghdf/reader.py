@@ -231,6 +231,8 @@ class Eeghdf:
         # patient
         self.patient = dict(self.hdf['patient'].attrs)
 
+        self.duration_seconds = self.number_samples_per_channel/self.sample_frequency
+
     def annotations_contain(self, pat, case=False):
         df = self.edf_annotations_df
         return df[df.text.str.contains(pat,case=case)]
@@ -295,7 +297,7 @@ class Eeghdf:
 
 
     @property
-    def phys_signals(self) -> object:
+    def phys_signals(self): # -> object:
         if not self._SAMPLE_TO_UNITS:
             self._calc_sample2units()
             assert np.all(np.abs(self._phys_offset) < 1.0)
