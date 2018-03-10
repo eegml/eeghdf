@@ -226,6 +226,25 @@ class Eeghdf:
         self.number_samples_per_channel = rec0.attrs['number_samples_per_channel'] # = num_samples_per_channel
         self.sample_frequency = rec0.attrs['sample_frequency'] # = sample_frequency
 
+        # note I am requiring this duration_seconds value to be an integer at
+        # this time given edf conventions, but this may need to change
+        self.duration_seconds = int(round(self.number_samples_per_channel/ self.sample_frequency,0))
+
+
+
+    # @property
+    # def duration_seconds(self):
+    #     """
+    #     >>> import eeghdf
+    #     >>> eeg = Eeghdf("../notebooks/archive/DA05505C_1-1+.eeghdf")
+    #     >>> eeg.duration_seconds
+    #     3046.0
+    #     """
+    #     #startdt = self.rec0['start_isodatetime']
+    #     ##enddt = self.rec0['end_isodatetime
+    #     duration_secs = self.number_samples_per_channel/ self.sample_frequency
+    #     return duration_secs
+
 
         # rec0.attrs['technician'] = technician
         # patient

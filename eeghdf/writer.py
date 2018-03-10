@@ -44,6 +44,9 @@ in python 2.7 these are being stored as str/bytes which means essentially ascii 
 based upon how I undertand h5py/hdf works but should double check
 
 the variable length arrays are bytes/python2-strings
+
+version 2: add studyadmincode to record-0 
+version 1: initial version used create SEC 0.1
 """
 
 # Notes on neo.io
@@ -61,7 +64,7 @@ the variable length arrays are bytes/python2-strings
 # enumerate all the attribute data which can be read/writen
 # just to make it clear
 class EEGHDFWriter(object):
-    version = 1  # first official release with 1000, maintain compat up to 2000
+    version = 2  # first official release with 1000, maintain compat up to 2000
 
     def __init__(self, hdf_file_name, fileattr='w-'):
         """
@@ -145,7 +148,8 @@ class EEGHDFWriter(object):
                             signal_prefilters=None,
                             signal_transducers=None,
                             bits_per_sample='auto',
-                            technician=''):
+                            technician='',
+                            studyadmincode=''):
         """
         create the record block along with all the small structures
         that are reasonable to hold in memory all at once
@@ -231,6 +235,7 @@ class EEGHDFWriter(object):
         #     record.att
 
         record.attrs['technician'] = technician
+        record.attrs['studyadmincode'] = studyadmincode
         return record 
 
     def get_new_record_block(self):

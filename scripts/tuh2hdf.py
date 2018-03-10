@@ -209,155 +209,15 @@ LPCH_COMMON_1020_LABELS_to_EDF_STANDARD = {
 
 
 def normalize_lpch_signal_label(label):
+    label = label.replace('-REF','')
+    label = label.replace('-LE','')
     uplabel = label.upper()
+    
     if uplabel in LPCH_TO_STD_LABELS_STRIP:
         return LPCH_TO_STD_LABELS_STRIP[uplabel]
     else:
         return label
 
-
-def edf2h5_float32(fn, outfn='', hdf_dir='', anonymous=False):
-    """
-    convert an edf file to hdf5 using a straighforward mapping
-    convert to real-valued signals store as float32's
-
-    justing getting started here
-    --- metadata ---
-    number_signals
-    sample_frequency
-    nsamples
-    age
-    signal_labels
-
-    Post Menstrual Age
-    """
-    if not outfn:
-        base = os.path.basename(fn)
-        base, ext = os.path.splitext(base)
-
-        base = base + '.eeghdf5'
-        outfn = os.path.join(hdf_dir, base)
-        print('outfn:', outfn)
-        # outfn = fn+'.eeg.h5'
-    with edflib.EdfReader(fn) as ef:
-        nsigs = ef.signals_in_file
-        # again know/assume that this is uniform sampling across signals
-        fs = [ef.samplefrequency(ii) for ii in range(nsigs)]
-        fs0 = fs[0]
-
-        if any([ fs0 != xx for xx in fs]):
-            print("caught multiple sampling frquencies in edf files!!!")
-            sys.exit(0)
-        
-        nsamples0 = ef.samples_in_file(0)
-
-        print('nsigs=%s, fs0=%s, nsamples0=%s' % (nsigs, fs0, nsamples0))
-
-        # create file 'w-' -> fail if exists , w -> truncate if exists
-        hdf = h5py.File(outfn, 'w')
-        # use compression? yes! give it a try
-        eegdata = hdf.create_dataset('eeg', (nsigs, nsamples0), dtype='float32',
-                                     # chunks=(nsigs,fs0),
-                                     chunks=True,
-                                     fletcher32=True,
-                                     # compression='gzip',
-                                     # compression='lzf',
-                                     # maxshape=(256,None)
-                                     )
-        # no compression     -> 50 MiB     can view eegdata in vitables
-        # compression='gzip' -> 27 MiB    slower
-        # compression='lzf'  -> 35 MiB
-        # compression='lzf' maxshape=(256,None) -> 36MiB
-        # szip is unavailable
-        patient = hdf.create_group('patient')
-
-        # add meta data
-        hdf.attrs['number_signals'] = nsigs
-        hdf.attrs['sample_frequency'] = fs0
-        hdf.attrs['nsamples0'] = nsamples0
-        patient.attrs['gender_b'] = ef.gender_b
-        patient.attrs['patientname'] = ef.patient_name  # PHI
-        print('birthdate: %s' % ef.birthdate_b, type(ef.birthdate_b))
-        # this is a string -> date (datetime)
-        if not ef.birthdate_b:
-            print("no birthday in this file")
-            birthdate = None
-        else:
-            birthdate = dateutil.parser.parse(ef.birthdate_b)
-            print('birthdate (date object):', birthdate_b)
-
-        start_date_time = datetime.datetime(
-            ef.startdate_year,
-            ef.startdate_month,
-            ef.startdate_day,
-            ef.starttime_hour,
-            ef.starttime_minute,
-            ef.starttime_second)  # ,tzinfo=dateutil.tz.tzlocal())
-        print(start_date_time)
-        if start_date_time and birthdate:
-            age = start_date_time - birthdate
-            print('age:', age)
-        else:
-            age = None
-
-        if age:
-            patient.attrs['post_natal_age_days'] = age.days
-        else:
-            patient.attrs['post_natal_age_days'] = -1
-
-        # now start storing the lists of things: labels, units...
-        # nsigs = len(label_list)
-        # variable ascii string (or b'' type)
-        str_dt = h5py.special_dtype(vlen=str)
-        label_ds = hdf.create_dataset('signal_labels', (nsigs,), dtype=str_dt)
-        units_ds = hdf.create_dataset('signal_units', (nsigs,), dtype=str_dt)
-        labels = []
-        units = list()
-        # signal_nsamples = []
-        for ii in range(nsigs):
-            labels.append(ef.signal_label(ii))
-            units.append(ef.physical_dimension(ii))
-            # self.signal_nsamples.append(self.cedf.samples_in_file(ii))
-            # self.samplefreqs.append(self.cedf.samplefrequency(ii))
-        # eegdata.signal_labels = labels
-        # labels are fixed length strings
-        labels_strip = [ss.strip() for ss in labels]
-        label_ds[:] = labels_strip
-        units_ds[:] = units
-        # should be more and a switch for anonymous or not
-
-        # need to change this to
-
-        nchunks = int(nsamples0 // fs0)
-        samples_per_chunk = int(fs0)
-        buf = np.zeros((nsigs, samples_per_chunk),
-                       dtype='float64')  # buffer is float64_t
-
-        print('nchunks: ', nchunks, 'samples_per_chunk:',  samples_per_chunk)
-
-        bookmark = 0  # mark where were are in samples
-        for ii in range(nchunks):
-            for jj in range(nsigs):
-                # readsignal(self, signalnum, start, n,
-                # np.ndarray[np.float64_t, ndim = 1] sigbuf)
-                # read_phys_signal(chn, 0, nsamples[chn], v)
-                #read_phys_signal(self, signalnum, start, n, np.ndarray[np.float64_t, ndim=1] sigbuf)
-                print(ii,jj)
-                ef.read_phys_signal(jj, bookmark, samples_per_chunk, buf[jj])  # readsignal converts into float
-            # conversion from float64 to float32
-            eegdata[:, bookmark:bookmark + samples_per_chunk] = buf
-            # bookmark should be ii*fs0
-            bookmark += samples_per_chunk
-        left_over_samples = nsamples0 - nchunks * samples_per_chunk
-        print('left_over_samples:', left_over_samples)
-
-        if left_over_samples > 0:
-            for jj in range(nsigs):
-                ef.read_phys_signal(jj, bookmark, left_over_samples, buf[jj])
-            eegdata[:,
-                    bookmark:bookmark + left_over_samples] = buf[:,
-                                                                 0:left_over_samples]
-        hdf.close()
 
 
 def edf_block_iter_generator(
@@ -717,10 +577,13 @@ def edf2hdf2(fn, outfn='', hdf_dir='', anonymize=False):
     """
 
     if not outfn:
+        dir_name = os.path.dirname(fn)
+        if not hdf_dir:
+            hdf_dir = dir_name
         base = os.path.basename(fn)
         base, ext = os.path.splitext(base)
 
-        base = base + '.eeghdf'
+        base = base + '.eeg.h5'
         outfn = os.path.join(hdf_dir, base)
         # print('outfn:', outfn)
         # all the data point related stuff
@@ -914,6 +777,31 @@ def edf2hdf2(fn, outfn='', hdf_dir='', anonymize=False):
         signal_transducers = [ef.transducer(ch).strip() for ch in range(nsigs)]
         #print('signal_transducers::\n')
         #pprint.pprint(signal_transducers)
+
+        if not header['patient_name']: # iassume is "EDF" file so need to split patient info
+            try:
+                s = ef.patient
+                print('local subject:', s)
+
+                patientcode, gender, dob, name, age_str = s.split() # the age_str seems illegal per edfplus
+                print("try this:")
+
+                header['patient_name'] = name
+                header['birthdate_date'] = dob
+                header['gender'] = gender
+                header['patient_additional'] = age_str
+                header['patientcode'] = patientcode
+            except:
+                pass
+            try:
+                s = ef.patient
+                ss = s.split()
+                if len(ss) > 0:
+                    header['patient_name'] = ss[0]
+                header['patient_additional'] = s
+            except:
+                pass
+            
 
         with eeghdf.EEGHDFWriter(outfn, 'w') as eegf:
             eegf.write_patient_info(patient_name=header['patient_name'],
