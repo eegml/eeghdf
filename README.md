@@ -13,3 +13,7 @@ Project to develop a easily accessible format for storing EEG in a way that is e
 - [ ] code to write back to edf 
 - [ ] more visualization code
 - [ ] add study admin code to record info (do not seem to include this now, e.g. EEG No like V17-105)
+- [ ] code to clip and create subfiles
+  - [ ] allow patient info to propate
+  - [ ] hash list/tree of history of file so that can track provenance of waveforms if desired
+  - [ ] clip and maintain correct (relative) times
