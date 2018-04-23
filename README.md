@@ -9,7 +9,7 @@ Project to develop a easily accessible format for storing EEG in a way that is e
 - look to add fields for clinical report text
 - look to add field for montages and electrode geometry
 
-### To Do
+## To Do
 
 - [x] code to write file, target initial release version is 1000
 - [X] initial scripts to convert edf to eeghdf and floating point hdf5
