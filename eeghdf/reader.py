@@ -9,6 +9,7 @@ from __future__ import print_function, unicode_literals
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 from past.utils import old_div
 
+import logging
 import numpy as np
 import h5py
 import pandas as pd # maybe shouldn't require pandas in basic file so look to eliminate
@@ -337,8 +338,10 @@ class Eeghdf_ver2(Eeghdf):
 
     def __init__(self, fn, mode='r'):
         super().__init__(fn,mode)
-        
+        rec0 = self.rec0
         if 'studyadmincode' in rec0.attrs:
             self.studyadmincode = rec0.attrs['studyadmincode']
         else: # fall back if not defined, though it should have been and raise an warning?
+            logging.warning("record-0.attrs['studyadmincode'] not defined, likely opened a version 1 file")
+            
             self.studyadmincode = ''

@@ -62,3 +62,9 @@ def test_phys_signals():
     eeg.phys_signals[3:5]
 
 eeg = reader.Eeghdf(EEGFILE1)    
+
+def test_eeghdf_ver2():
+    # open the old file version
+    eeg = reader.Eeghdf_ver2(EEGFILE1)
+    assert eeg != None
+    print(eeg.hdf.attrs['EEGHDFversion'])
