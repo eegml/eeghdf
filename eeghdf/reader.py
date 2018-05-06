@@ -204,6 +204,7 @@ class Eeghdf:
 
         self._SAMPLE_TO_UNITS = False # indicate if have calculated conversion factors flag
 
+
         # read annotations and format them for easy use
         annot = rec0['edf_annotations'] # but these are in a funny 3 array format
         antext = [s.decode('utf-8') for s in annot['texts'][:]]
@@ -326,3 +327,18 @@ class Eeghdf:
     #    self.# record['signal_physical_maxs'] = signal_physical_maxs
     # record['signal_digital_mins'] = signal_digital_mins
 
+
+class Eeghdf_ver2(Eeghdf):
+    __version__ = 2
+    """
+    version 2 supports studyadmincode in record-0 attributes
+    but still presumes only one record block ('record-0')
+    """
+
+    def __init__(self, fn, mode='r'):
+        super().__init__(fn,mode)
+        
+        if 'studyadmincode' in rec0.attrs:
+            self.studyadmincode = rec0.attrs['studyadmincode']
+        else: # fall back if not defined, though it should have been and raise an warning?
+            self.studyadmincode = ''
