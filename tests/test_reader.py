@@ -61,6 +61,10 @@ def test_phys_signals():
 
     eeg.phys_signals[3:5]
 
+    selected_channels = [1,4,7] # test fancy indexing of channels
+    res = eeg.phys_signals[selected_channels,x*200:x*200+200]
+    assert res.shape == 3, 200
+
 eeg = reader.Eeghdf(EEGFILE1)    
 
 def test_eeghdf_ver2():
