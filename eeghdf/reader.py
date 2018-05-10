@@ -98,7 +98,7 @@ class PhysSignal:
                 #print('list/tuple path fancy indexing')
                 a = self.s2u[slcitm[0]]
                 A = np.diag(a)
-                tmp_all_chan = self.data.__getitem__(:,slcitm[1])
+                tmp_all_chan = self.data[:,slcitm[1]]
                 buf = tmp_all_chan[slcitm[0],:] + self.offset[ch_slice]
                 return np.dot(A,buf)
             
@@ -172,7 +172,7 @@ class PhysSignalZeroOffset:
                 a = self.s2u[slcitm[0]]
                 A = np.diag(a)
                 # print('A.shape:', A.shape)
-                tmp_all_chan = self.data.__getitem__(:,slcitm[1])
+                tmp_all_chan = self.data[:,slcitm[1]]
                 buf = tmp_all_chan[slcitm[0],:] # use fancy indexing on channels
                 return np.dot(A,buf)
             
