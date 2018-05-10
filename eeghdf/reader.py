@@ -98,7 +98,8 @@ class PhysSignal:
                 #print('list/tuple path fancy indexing')
                 a = self.s2u[slcitm[0]]
                 A = np.diag(a)
-                buf = self.data.__getitem__(slcitm) + self.offset[ch_slice]
+                tmp_all_chan = self.data[:,slcitm[1]]
+                buf = tmp_all_chan[slcitm[0],:] + self.offset[ch_slice]
                 return np.dot(A,buf)
             
             elif isinstance(slcitm[0],int): # a single channel with subset of samples
@@ -171,7 +172,8 @@ class PhysSignalZeroOffset:
                 a = self.s2u[slcitm[0]]
                 A = np.diag(a)
                 # print('A.shape:', A.shape)
-                buf = self.data.__getitem__(slcitm)
+                tmp_all_chan = self.data[:,slcitm[1]]
+                buf = tmp_all_chan[slcitm[0],:] # use fancy indexing on channels
                 return np.dot(A,buf)
             
             if isinstance(slcitm[0],slice):
