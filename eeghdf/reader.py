@@ -94,6 +94,13 @@ class PhysSignal:
                 A = self.S2U[ch_slice,ch_slice]
                 buf = self.data.__getitem__(slcitm) + self.offset[ch_slice]
                 return np.dot(A,buf)
+            if  isinstance(slcitm[0],(list,tuple)):
+                #print('list/tuple path fancy indexing')
+                a = self.s2u[slcitm[0]]
+                A = np.diag(a)
+                buf = self.data.__getitem__(slcitm) + self.offset[ch_slice]
+                return np.dot(A,buf)
+            
             elif isinstance(slcitm[0],int): # a single channel with subset of samples
                 a = self.s2u[slcitm[0]]
                 return a * (self.data[slcitm] + self.offset[slcitm[0]])
@@ -101,7 +108,7 @@ class PhysSignal:
             # multidim
 
         else:
-            # print('return a chanel:', slcitm)
+            # print('return a channel:', slcitm)
             # just a single integer
             a = self.s2u[slcitm]
             return a * (self.data[slcitm] + self.offset[slcitm])
@@ -140,6 +147,8 @@ class PhysSignalZeroOffset:
         # self.offset = offset
 
     def __getitem__(self,slcitm):
+        # debug
+        # print('slcitm type:', type(slcitm), '\nvalue:', slcitm)
         if isinstance(slcitm, slice): 
             # e.g. s[3:5] returning full versions of channels 3,4 with all samples
             # print("slice", slcitm)
@@ -150,10 +159,26 @@ class PhysSignalZeroOffset:
 
         elif isinstance(slcitm, tuple):
             # print("multi-dim:", slcitm)
+            if isinstance(slcitm[0],slice): 
+                #print('gn down slice path')
+                #print('self.S2U:', self.S2U)
+                A = self.S2U[slcitm[0],slcitm[0]]
+                #print('A.shape:', A.shape)
+                buf = self.data.__getitem__(slcitm)
+                return np.dot(A,buf)
+            if  isinstance(slcitm[0],(list,tuple)):
+                #print('list/tuple path fancy indexing')
+                a = self.s2u[slcitm[0]]
+                A = np.diag(a)
+                # print('A.shape:', A.shape)
+                buf = self.data.__getitem__(slcitm)
+                return np.dot(A,buf)
+            
             if isinstance(slcitm[0],slice):
                 A = self.S2U[slcitm[0],slcitm[0]]
                 buf = self.data.__getitem__(slcitm)
                 return np.dot(A,buf)
+
             elif isinstance(slcitm[0],int): # a single channel with subset of samples
                 a = self.s2u[slcitm[0]]
                 return a * self.data[slcitm]
@@ -166,7 +191,7 @@ class PhysSignalZeroOffset:
             return a * self.data[slcitm]
 
             # just a single integer
-
+        raise Exception('oops unhandled case in __getitem__')
 
     @property
     def shape(self):
