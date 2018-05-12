@@ -9,6 +9,7 @@ from __future__ import print_function, unicode_literals
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 from past.utils import old_div
 
+import logging
 import numpy as np
 import h5py
 import pandas as pd # maybe shouldn't require pandas in basic file so look to eliminate
@@ -206,6 +207,7 @@ class Eeghdf:
 
         self._SAMPLE_TO_UNITS = False # indicate if have calculated conversion factors flag
 
+
         # read annotations and format them for easy use
         annot = rec0['edf_annotations'] # but these are in a funny 3 array format
         antext = [s.decode('utf-8') for s in annot['texts'][:]]
@@ -328,3 +330,20 @@ class Eeghdf:
     #    self.# record['signal_physical_maxs'] = signal_physical_maxs
     # record['signal_digital_mins'] = signal_digital_mins
 
+
+class Eeghdf_ver2(Eeghdf):
+    __version__ = 2
+    """
+    version 2 supports studyadmincode in record-0 attributes
+    but still presumes only one record block ('record-0')
+    """
+
+    def __init__(self, fn, mode='r'):
+        super().__init__(fn,mode)
+        rec0 = self.rec0
+        if 'studyadmincode' in rec0.attrs:
+            self.studyadmincode = rec0.attrs['studyadmincode']
+        else: # fall back if not defined, though it should have been and raise an warning?
+            logging.warning("record-0.attrs['studyadmincode'] not defined, likely opened a version 1 file")
+            
+            self.studyadmincode = ''

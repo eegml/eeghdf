@@ -13,8 +13,9 @@ Project to develop a easily accessible format for storing EEG in a way that is e
 
 - [x] code to write file, target initial release version is 1000
 - [X] initial scripts to convert edf to eeghdf and floating point hdf5
+- [ ] code to subsample and convert edf -> eeghdf
 - [ ] code to write back to edf
-- [ ] more visualization code
+- [ ] more visualization code -> push to eegvis
 - [ ] add study admin code to record info (do not seem to include this now, e.g. EEG No like V17-105)
 - [ ] code to clip and create subfiles
   - [ ] allow patient info to propate
