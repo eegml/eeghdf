@@ -238,6 +238,121 @@ class EEGHDFWriter(object):
         record.attrs['studyadmincode'] = studyadmincode
         return record 
 
+    def create_masked_record_block(self, 
+                                   record_duration_seconds,
+                                   start_isodatetime,
+                                   end_isodatetime,  # remove number_channles as this is calculated 
+                                   num_samples_per_channel,
+                                   sample_frequency,
+                                   signal_labels,
+                                   signal_physical_mins,
+                                   signal_physical_maxs,
+                                   signal_digital_mins,
+                                   signal_digital_maxs,
+                                   physical_dimensions,
+                                   patient_age_days,  # auto calculate float form patienet info?
+                                   signal_prefilters=None,
+                                   signal_transducers=None,
+                                   bits_per_sample='auto',
+                                   technician='',
+                                   studyadmincode='',
+                                   signals_mask=None):
+        
+        """
+        @signals_mask is a list or array which evalutes to True or False depending on if a signal should be inlcuded in the 
+        eeghdf file 
+        """
+
+        orig_num_signals = len(signal_labels) # original number of signals 
+ 
+
+        if signals_mask:
+            # maybe should do this with arr_mask = arr[np.where(signals_mask) pattern
+            
+            signal_labels_masked = [ signal_labels[ii] for ii in range(len(signal_labels))
+                                     if signals_mask[ii] ]
+
+            Nmask = len(signal_labels_masked)
+            number_channels_masked = Nmask
+            
+            signal_physical_mins_masked = np.array([ signal_physical_mins[ii] 
+                                            for ii in range(len(signal_physical_mins))
+                                            if signals_mask[ii] ])
+
+            signal_physical_maxs_masked = np.array([ signal_physical_maxs[ii]
+                                            for ii in range(len(signal_physical_maxs))
+                                            if signals_mask[ii] ])
+            
+            signal_digital_mins_masked = np.array([ signal_digital_mins[ii] 
+                                           for ii in range(len(signal_digital_mins)) 
+                                           if signals_mask[ii] ])
+            # signal_digital_maxs_masked = [ signal_digital_maxs[ii]
+            #                                for ii in range(len(signal_digital_maxs))
+            #                                if signals_mask[ii] ]
+
+            signal_digital_maxs_masked =  signal_digital_maxs[np.where(signals_mask)]
+
+            
+            physical_dimensions_masked = [ physical_dimensions[ii] 
+                                           for ii in range(len(physical_dimensions))
+                                           if signals_mask[ii] ]
+
+            if signal_prefilters:
+                signal_prefilters_masked = [ signal_prefilters[ii] 
+                                             for ii in range(len(signal_prefilters))
+                                             if signals_mask[ii] ]
+            else:
+                #signal_prefilters_masked = [''] * Nmask
+                signal_prefilters_masked = None
+                
+            if signal_transducers:
+                signal_transducers_masked = [ signal_transducers[ii] 
+                                              for ii in range(len(signal_transducers)) 
+                                              if signals_mask[ii] ]
+            else:
+                signal_transducers_masked = None
+
+            rec = self.create_record_block(record_duration_seconds=record_duration_seconds,
+                                           start_isodatetime=start_isodatetime,
+                                           end_isodatetime=end_isodatetime,
+                                           number_channels=number_channels_masked, 
+                                           num_samples_per_channel=num_samples_per_channel,
+                                           sample_frequency=sample_frequency,
+                                           signal_labels=signal_labels_masked,
+                                           signal_physical_mins=signal_physical_mins_masked,
+                                           signal_physical_maxs=signal_physical_maxs_masked,
+                                           signal_digital_mins=signal_digital_mins_masked,
+                                           signal_digital_maxs=signal_digital_maxs_masked,
+                                           physical_dimensions=physical_dimensions_masked,
+                                           patient_age_days=patient_age_days,
+                                           signal_prefilters=signal_prefilters_masked,
+                                           signal_transducers=signal_transducers_masked,
+                                           technician=technician,
+                                           studyadmincode=studyadmincode)
+            return rec
+        else: # no mask provided
+            rec = self.create_record_block(record_duration_seconds=record_duration_seconds,
+                                           start_isodatetime=start_isodatetime,
+                                           end_isodatetime=end_isodatetime,
+                                           number_channels=orig_num_signals,
+                                           num_samples_per_channel=num_samples_per_channel,
+                                           sample_frequency=sample_frequency,
+                                           signal_labels=signal_labels,
+                                           signal_physical_mins=signal_physical_min,
+                                           signal_physical_maxs=signal_physical_maxs,
+                                           signal_digital_mins=signal_digital_mins,
+                                           signal_digital_maxs=signal_digital_maxs,
+                                           physical_dimensions=physical_dimensions,
+                                           patient_age_days=patient_age_days,
+                                           signal_prefilters=signal_prefilters,
+                                           signal_transducers=signal_transducers,
+                                           technician=technician,
+                                           studyadmincode=studyadmincode)
+            return rec 
+            
+
+
+
     def get_new_record_block(self):
         """create a standard name for a record block group"""
         nextnum = len(self.record_list)
