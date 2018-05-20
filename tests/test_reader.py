@@ -202,3 +202,47 @@ def test_indexing_unconstrained():
         compare = S[ss] # has limited numbers
         res = eeg.phys_signals[ss]
         assert res.shape[0] == eeg.number_channels
+
+#%%
+def gen_synthetic_signal(num_chan=5, fs=10, duration_sec=2, dig_offsets=None):
+    """generate a simple synthetic signal for testing
+    both in physical units (float32) and in a digitized version (int16) values
+    
+    """
+    fmax = fs/4.0
+    L = fs * duration_sec
+
+    if not dig_offsets:
+        dig_offsets = 2000*np.arange(num_chan, dtype='int16')   
+
+    # allocate arrays
+    U = np.zeros(shape=(num_chan,L), dtype='float32') # S= physical signal (real one)
+    D = np.zeros(shape=(num_chan,L), dtype='int16') # digital signal
+
+    U[0] = np.arange(L,dtype='float32')/fs
+    PHI = 2*np.pi
+    freqs = np.linspace(0,fmax,num=num_chan)
+    for ii in range(1,num_chan):
+        U[ii] = np.sin(U[0]*PHI*freqs[ii])
+
+    c = 16383
+    s2u = c* np.ones(num_chan)
+    s2u[-1] = s2u[-1]/2.0 # make it so at least one channel has a different conversion factor 
+
+
+    Df=( U.T * s2u).T - dig_offsets[:,np.newaxis]
+
+    D[:] = Df[:]
+
+    return U, D, s2u, dig_offsets
+1
+#%%
+import matplotlib.pyplot as plt 
+
+u, d, s2u, of = gen_synthetic_signal(fs=100,duration_sec=2)
+
+def plot_signals(tarr, d):
+    nchan, nsamples = d.shape
+    for ii in range(nchan):
+        plt.subplot(nchan, 1,ii)
+        plt.plot(tarr, d[ii])
