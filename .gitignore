@@ -107,3 +107,6 @@ ENV/
 *~
 #pycharm
 .idea*
+
+# vscode
+.vscode*
