@@ -11,7 +11,7 @@ import numpy as np
 
 """
 ------
-EDFHDF
+EEGHDF
 ------
 EEGHDF is a format for hdf5 files to encapsulate EEG files and other, similar physiological files in a way that is easy to access in the machine learning world
 
