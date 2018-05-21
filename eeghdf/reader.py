@@ -152,6 +152,8 @@ class PhysSignalZeroOffset:
     Anything else has not been tested - I am only testing the first two values of the tuple
     """
     def __init__(self, data,s2u, S2U, offset):
+        """@s2u is the array with each components scaling
+        @S2U = diag(s2u) usually"""
         self.data = data # hdf data array
         self.s2u = s2u
         self.S2U = S2U
