@@ -8,14 +8,14 @@ import eeghdf
 
 ## module level globals
 try:
-    ROOT = os.path.dirname(__file__)
+    ROOT = path.dirname(__file__)
 except NameError:
-    ROOT = os.path.curdir
+    ROOT = path.curdir
 
-ARFILE1 = os.path.join(ROOT,r"../data/absence_epilepsy.eeghdf")
-ARFILE2 = os.path.join(ROOT,r"../data/spasms.eeghdf")
-EEGFILE1 = os.path.normpath(ARFILE1)
-EEGFILE2 = os.path.normpath(ARFILE2)
+ARFILE1 = path.join(ROOT,r"../data/absence_epilepsy.eeghdf")
+ARFILE2 = path.join(ROOT,r"../data/spasms.eeghdf")
+EEGFILE1 = path.normpath(ARFILE1)
+EEGFILE2 = path.normpath(ARFILE2)
 
 #print(ARFILE1)
 eeg = eeghdf.Eeghdf(EEGFILE1)
@@ -48,10 +48,10 @@ S.shape = (num_chan, 10) # reshape to emulate an EEG signal
 
 sca = np.arange(float(num_chan))
 transform = S * sca[:,np.newaxis]
-assert np.all(target == transform)
+# assert np.all(target == transform)
 
 
-%%
+#%%  begin tests
 def test_reader_open():
     eeg = eeghdf.Eeghdf(EEGFILE1)
     assert eeg != None
