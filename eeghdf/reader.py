@@ -80,37 +80,43 @@ class PhysSignal:
         if isinstance(slcitm, slice): 
             # e.g. s[3:5] returning full versions of channels 3,4 with all samples so slcitm represents
             # channels 
-            # print("slice", slcitm)
-            buf = self.data[slcitm] + self.offset[slcitm]
-            S = self.s2u[slcitm]
-            res = S * buf.T # broadcasting
+            # print("slice path:", slcitm) # debug
+            ch_slice = slcitm
+            buf = self.data[ch_slice] + self.offset[ch_slice,np.newaxis] # may need to be [ch_slice,np.newaxis]
+            sc = self.s2u[slcitm] # scaling 
+            res = sc * buf.T # broadcasting
             return res.T
 
         elif isinstance(slcitm, tuple):
-            #print("multi-dim:", slcitm)
+            # print("multi-dim:", slcitm) # debug
             if isinstance(slcitm[0],slice):
-                # slice a subset of channels
                 ch_slice = slcitm[0]
-                #A = self.S2U[ch_slice,ch_slice]
-                #buf = self.data.__getitem__(slcitm) + self.offset[ch_slice]
-                #return np.dot(A,buf)
-                sc = self.s2u[ch_slice]
-                return self.data[ch_slice] * sc[:,np.newaxis] + self.offset[ch_slice]
-            
+                s1 = slcitm[1]
 
+                if isinstance(slcitm[1],int):
+                    # print('see int in second element of tuple') # debug
+                    tmpdata = self.data[slcitm] + self.offset[slcitm[0]]
+                    #collapses shape to (M,)
+                    return (tmpdata.T * self.s2u[ch_slice]).T
+
+                # slice a subset of channels
+
+                sc = self.s2u[ch_slice]
+                tmp =  sc * (self.data[ch_slice, s1] + self.offset[ch_slice,np.newaxis]).T
+                return tmp.T
             
             if  isinstance(slcitm[0],(list,tuple)):
-                #print('list/tuple path fancy indexing')
-                a = self.s2u[slcitm[0]]
-                A = np.diag(a)
-                tmp_all_chan = self.data[:,slcitm[1]]
-                buf = tmp_all_chan[slcitm[0],:] + self.offset[ch_slice]
-                return np.dot(A,buf)
+                # print('list/tuple path fancy indexing') # debug
+                ch_slice = slcitm[0]
+                sc = self.s2u[ch_slice]
+                tmp_all_chan = self.data[:,slcitm[1]] # this may make a copy 
+                buf = tmp_all_chan[ch_slice,:] + self.offset[ch_slice,np.newaxis]
+                return (sc * buf.T).T
             
             elif isinstance(slcitm[0],int): # a single channel with subset of samples
+                # print('int ch path:', slcitm) # debug
                 a = self.s2u[slcitm[0]]
-                return a * (self.data[slcitm] + self.offset[slcitm[0]])
-
+                return a * (self.data[slcitm] + self.offset[slcitm[0]] )
             # multidim
 
         else:
@@ -146,6 +152,8 @@ class PhysSignalZeroOffset:
     Anything else has not been tested - I am only testing the first two values of the tuple
     """
     def __init__(self, data,s2u, S2U, offset):
+        """@s2u is the array with each components scaling
+        @S2U = diag(s2u) usually"""
         self.data = data # hdf data array
         self.s2u = s2u
         self.S2U = S2U
@@ -153,8 +161,7 @@ class PhysSignalZeroOffset:
         # self.offset = offset
 
     def __getitem__(self,slcitm):
-        # debug
-        # print('PhysSignalZeroOffset-slcitm type:', type(slcitm), '\nvalue:', slcitm)
+        # print('PhysSignalZeroOffset-slcitm type:', type(slcitm), '\nvalue:', slcitm) # debug
         if isinstance(slcitm, slice): 
             # e.g. s[3:5] returning full versions of channels 3,4 with all samples
             # print("slice", slcitm)
@@ -166,6 +173,7 @@ class PhysSignalZeroOffset:
         elif isinstance(slcitm, tuple):
             # print("multi-dim:", slcitm)
             assert len(slcitm) == 2
+
             if isinstance(slcitm[0],slice): 
                 #print('gn down slice path')
                 #print('self.S2U:', self.S2U)
@@ -380,7 +388,8 @@ class Eeghdf:
     def phys_signals(self): # -> object:
         if not self._SAMPLE_TO_UNITS:
             self._calc_sample2units()
-            assert np.all(np.abs(self._phys_offset) < 1.0)
+            print('self._phys_offset:',self._phys_offset)
+            # assert np.all(np.abs(self._phys_offset) < 1.0)
             
         return self._phys_signals
     
