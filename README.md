@@ -19,7 +19,7 @@ Project to develop a easily accessible format for storing EEG in a way that is e
 - [x] add convenience interface to phys_signal with automagic conversion from digital->phys units
 - [ ] add study admin code to record info (do not seem to include this now, e.g. EEG No like V17-105)
 - [ ] code to clip and create subfiles
-  - [ ] allow patient info to propate
+  - [ ] allow patient info to propagate
   - [ ] hash list/tree of history of file so that can track provenance of waveforms if desired
   - [ ] clip and maintain correct (relative) times
 - [ ] consider how to handle derived records: for example the downsampled float32 records "frecord200Hz" 
