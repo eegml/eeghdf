@@ -318,22 +318,22 @@ def dig2phys(eeghdf, start, end, chstart, chend):
     dmaxs = eeghdf['signal_digital_maxs'][:]
     phys_maxs = eeghdf['signal_physical_maxs'][:]
     phys_mins = eeghdf['signal_physical_mins'][:]
-    print('dmaxs:', repr(dmaxs))
-    print('dmins:', repr(dmins))
-    print('dmaxs[:] - dmins[:]', dmaxs - dmins)
-    print('phys_maxs', phys_maxs)
-    print('phys_mins', phys_mins)
+    #print('dmaxs:', repr(dmaxs))
+    #print('dmins:', repr(dmins))
+    #print('dmaxs[:] - dmins[:]', dmaxs - dmins)
+    #print('phys_maxs', phys_maxs)
+    #print('phys_mins', phys_mins)
     bitvalues = (phys_maxs - phys_mins) / (dmaxs - dmins)
     offsets = phys_maxs / bitvalues - dmaxs
-    print('bitvalues, offsets:', bitvalues, offsets)
-    print('now change their shape to column vectors')
+    #print('bitvalues, offsets:', bitvalues, offsets)
+    #print('now change their shape to column vectors')
     for arr in (bitvalues, offsets):
         if len(arr.shape) != 1:
-            print('logical errror %s shape is unexpected' % arr.shape)
+            # print('logical errror %s shape is unexpected' % arr.shape)
             raise Exception
         s = arr.shape
         arr.shape = (s[0], 1)
-    print('bitvalues, offsets:', bitvalues, offsets)
+    # print('bitvalues, offsets:', bitvalues, offsets)
     # buf[i] = phys_bitvalue * (phys_offset + (double)var.two_signed[0]);
     dig_signal = eeghdf['signals'][chstart:chend, start:end]
     # signal = bitvalues[chstart:chend] *(dig_signal[chstart:chend,:] + offsets[chstart:chend])
@@ -565,15 +565,15 @@ class AnonymizeTrackHeaderStanford(ValidateTrackHeaderStanford):
 
 def find_blocks(arr):
     blocks = []
-    print("total arr:", arr)
+    # print("total arr:", arr)
     dfs = np.diff(arr)
     dfs_ind = np.where(dfs != 0.0)[0]
     last_ind = 0
     for dd in dfs_ind+1:
-        print("block:",arr[last_ind:dd])
+        # print("block:",arr[last_ind:dd])
         blocks.append((last_ind,dd))
         last_ind = dd
-    print("last block:", arr[last_ind:])
+    # print("last block:", arr[last_ind:])
     blocks.append( (last_ind,len(arr)))
     return blocks
 
@@ -581,7 +581,7 @@ def find_blocks(arr):
 def find_blocks2(arr):
     blocks = []
     N = len(arr)
-    print("total arr:", arr)
+    # print("total arr:", arr)
     last_ind = 0
     last_val = arr[0]
     for ii in range(1,N):
@@ -599,21 +599,21 @@ def find_blocks2(arr):
 def test_find_blocks1():
     s = [250.0, 250.0, 250.0, 1.0, 1.0, 1000.0, 1000.0]
     blocks = find_blocks(s)
-    print("blocks:")
-    print(blocks)
+    # print("blocks:")
+    # print(blocks)
 
 
 def test_find_blocks2():
     s = [250.0, 250.0, 250.0, 1.0, 1.0, 1000.0, 1000.0]
     blocks = find_blocks2(s)
-    print("blocks:")
-    print(blocks)
+    # print("blocks:")
+    # print(blocks)
 
 def test_find_blocks2_2():
     s = [100,100,100,100,100,100,100,100]
     blocks = find_blocks2(s)
-    print("blocks:")
-    print(blocks)
+    # print("blocks:")
+    # print(blocks)
 
     
 
@@ -637,7 +637,7 @@ def edf2hdf_f200(fn, outfn='', hdf_dir='', anonymize=False, targetfs=200.0, data
         base, ext = os.path.splitext(base)
 
         base = base + '_f%.0f.eeg.h5' % targetfs
-        print("creating file:", base)
+        # print("creating file:", base)
         outfn = os.path.join(hdf_dir, base)
         # print('outfn:', outfn)
         # all the data point related stuff
@@ -670,7 +670,7 @@ def edf2hdf_f200(fn, outfn='', hdf_dir='', anonymize=False, targetfs=200.0, data
             'recording_additional': ef.recording_additional,
             'datarecord_duration_100ns': ef.datarecord_duration_100ns,
         }
-        pprint.pprint(header)
+        # pprint.pprint(header)
 
         #### validation code #####
         validator = None
@@ -741,27 +741,27 @@ def edf2hdf_f200(fn, outfn='', hdf_dir='', anonymize=False, targetfs=200.0, data
         dfs_ind = dfs_ind[0]
         last_ind = 0
         for dd in dfs_ind+1:
-            print("block:",signal_frequency_array[last_ind:dd])
+            # print("block:",signal_frequency_array[last_ind:dd])
             last_ind = dd
-        print("last block:", signal_frequency_array[last_ind:])
+        # print("last block:", signal_frequency_array[last_ind:])
         
-        print("where does sampling rate change?", np.where(dfs != 0.0))
-        print("elements:", signal_frequency_array[np.where(dfs != 0.0)])
-        print("signal_frequency_array::\n", repr(signal_frequency_array))
-        print("len(signal_frequency_array):", len(signal_frequency_array))
+        # print("where does sampling rate change?", np.where(dfs != 0.0))
+        # print("elements:", signal_frequency_array[np.where(dfs != 0.0)])
+        # print("signal_frequency_array::\n", repr(signal_frequency_array))
+        # print("len(signal_frequency_array):", len(signal_frequency_array))
         
         assert all(signal_frequency_array[:-3] == fs0) # this is what I expect
         signal_mask_to_include = [ freq == fs0 for freq in signal_frequency_array ] # which signals to include and which to drop
-        print('signal_mask_to_include:', signal_mask_to_include)
+        # print('signal_mask_to_include:', signal_mask_to_include)
         signals_in_file_mask = sum(signal_mask_to_include)
-        print('num signals in mask:', signals_in_file_mask)
-        print("header['signals_in_file']:", header['signals_in_file'])
+        #print('num signals in mask:', signals_in_file_mask)
+        #print("header['signals_in_file']:", header['signals_in_file'])
 
         nsamples0 = ef.samples_in_file(0)  # samples per channel
-        print('nsigs=%s, fs0=%s, nsamples0=%s\n' % (nsigs, fs0, nsamples0))
+        #print('nsigs=%s, fs0=%s, nsamples0=%s\n' % (nsigs, fs0, nsamples0))
 
         num_samples_per_signal = ef.get_samples_per_signal()  # np array
-        print("num_samples_per_signal::\n", repr(num_samples_per_signal), '\n')
+        #print("num_samples_per_signal::\n", repr(num_samples_per_signal), '\n')
 
         # assert all(num_samples_per_signal == nsamples0)
 
@@ -784,16 +784,16 @@ def edf2hdf_f200(fn, outfn='', hdf_dir='', anonymize=False, targetfs=200.0, data
 
         annotations_b = ef.read_annotations_b_100ns_units()
 
-        print("annotations_b::\n")
-        pprint.pprint(annotations_b)  # get list of annotations
+        #print("annotations_b::\n")
+        #pprint.pprint(annotations_b)  # get list of annotations
 
         signal_text_labels = ef.get_signal_text_labels()
-        print("signal_text_labels::\n")
-        pprint.pprint(signal_text_labels)
-        print("normalized text labels::\n")
+        #print("signal_text_labels::\n")
+        #pprint.pprint(signal_text_labels)
+        #print("normalized text labels::\n")
         signal_text_labels_lpch_normalized = [
             normalize_tuh_signal_label(label) for label in signal_text_labels]
-        pprint.pprint(signal_text_labels_lpch_normalized)
+        #pprint.pprint(signal_text_labels_lpch_normalized)
 
         # ef.recording_additional
 
@@ -802,20 +802,20 @@ def edf2hdf_f200(fn, outfn='', hdf_dir='', anonymize=False, targetfs=200.0, data
             [ef.digital_min(ch) for ch in range(nsigs)])
         signal_digital_total_min = min(signal_digital_mins)
 
-        print("digital mins:", repr(signal_digital_mins))
-        print("digital total min:", repr(signal_digital_total_min))
+        #print("digital mins:", repr(signal_digital_mins))
+        #print("digital total min:", repr(signal_digital_total_min))
 
         signal_digital_maxs = np.array(
             [ef.digital_max(ch) for ch in range(nsigs)])
         signal_digital_total_max = max(signal_digital_maxs)
       
-        print("digital maxs:", repr(signal_digital_maxs))
+        #print("digital maxs:", repr(signal_digital_maxs))
         #print("digital total max:", repr(signal_digital_total_max))
 
         signal_physical_dims = [
             ef.physical_dimension(ch) for ch in range(nsigs)]
         # print('signal_physical_dims::\n')
-        # pprint.pprint(signal_physical_dims)
+        # #pprint.pprint(signal_physical_dims)
         #print()
 
         signal_physical_maxs = np.array(
@@ -831,19 +831,19 @@ def edf2hdf_f200(fn, outfn='', hdf_dir='', anonymize=False, targetfs=200.0, data
         # this don't seem to be used much so I will put at end
         signal_prefilters = [ef.prefilter(ch).strip() for ch in range(nsigs)]
         #print('signal_prefilters::\n')
-        # pprint.pprint(signal_prefilters)
+        # #pprint.pprint(signal_prefilters)
         #print()
         signal_transducers = [ef.transducer(ch).strip() for ch in range(nsigs)]
         #print('signal_transducers::\n')
-        #pprint.pprint(signal_transducers)
+        ##pprint.pprint(signal_transducers)
 
         if not header['patient_name']: # iassume is "EDF" file so need to split patient info
             try:
                 s = ef.patient
-                print('local subject:', s)
+                #print('local subject:', s)
 
                 patientcode, gender, dob, name, age_str = s.split() # the age_str seems illegal per edfplus
-                print("try this:")
+                #print("try this:")
 
                 header['patient_name'] = name
                 header['birthdate_date'] = dob
@@ -905,10 +905,10 @@ def edf2hdf_f200(fn, outfn='', hdf_dir='', anonymize=False, targetfs=200.0, data
                 dtype='int32')
 
             signals = eegf.stream_dig_signal_to_record_block(rec, edfblock_itr)
-            print('signals:', signals, signals.shape)
+            #print('signals:', signals, signals.shape)
             src_fs = rec.attrs['sample_frequency']
 
-            print('src_fs:', src_fs)
+            #print('src_fs:', src_fs)
             
             if targetfs:
                 resampleratio = targetfs/src_fs
@@ -924,7 +924,7 @@ def edf2hdf_f200(fn, outfn='', hdf_dir='', anonymize=False, targetfs=200.0, data
                     fletcher32=True)
                 frecord['phys_signals'][:,:] = signals200Hz
                 for key,val in rec.attrs.items(): # copy info from orig record
-                    print(key, ':', val)
+                    #print(key, ':', val)
                     frecord.attrs[key] = val 
                 # now corrections
                 frecord.attrs['number_samples_per_channel'] = signals200Hz.shape[1]
