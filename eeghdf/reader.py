@@ -43,6 +43,15 @@ def record_edf_annotations_to_sec_items(raw_edf_annotations):
     items = zip(antexts, starts_sec_arr)
     return items
 
+def electrode_label_to_shortcut(label):
+    """
+    EEG Fp1 -> Fp1
+    
+    """
+    l = label.replace('EEG','')
+    l = l.replace('ECG','')
+    l = l.strip()
+    return l
 
 # so given a hdf 
 # signals(integers) -> optional-uV-conversion -> optional montage conversion (???scope of this project)
@@ -396,6 +405,12 @@ class Eeghdf:
     #    self.# record['signal_physical_maxs'] = signal_physical_maxs
     # record['signal_digital_mins'] = signal_digital_mins
 
+    @property
+    def shortcut_elabels(self):
+        """These labels are used in montages and other displays
+        can further customize by adding to electrode_label_to_shortcut
+        """
+        return [electrode_label_to_shortcut(ss) for ss in self.electrode_labels]
 
 class Eeghdf_ver2(Eeghdf):
     __version__ = 2
