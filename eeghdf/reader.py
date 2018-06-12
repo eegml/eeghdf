@@ -397,7 +397,7 @@ class Eeghdf:
     def phys_signals(self): # -> object:
         if not self._SAMPLE_TO_UNITS:
             self._calc_sample2units()
-            print('self._phys_offset:',self._phys_offset)
+            # print('self._phys_offset:',self._phys_offset)
             # assert np.all(np.abs(self._phys_offset) < 1.0)
             
         return self._phys_signals
