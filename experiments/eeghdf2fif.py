@@ -82,6 +82,17 @@ print(info)
 # start on the data
 
 data = hf.phys_signals[useful_channels,:]
+# MNE wants EEG and ECG in Volts
+for jj,ii in enumerate(useful_channels):
+    unit = hf.physical_dimensions[ii]
+    if unit == 'uV':
+        data[jj,:] = data[jj,:]/1000000
+    if unit == 'mV':
+        data[jj,:] = data[jj,:]/1000
+        
 print(data.shape)
 customraw = mne.io.RawArray(data, info)
-customraw.save('test.fif')
+customraw.save('test.fif', overwrite=True)
+
+
+customraw.plot()  # browse data
