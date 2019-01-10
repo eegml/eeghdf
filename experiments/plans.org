@@ -18,3 +18,4 @@ This might make sense to go into eegml-signal but maybe not
 ** [ ] converters [0/0]
 *** [X] tuh edf to eeg.h5
 At least the basics of this conversion is done and applied t the the TUH seizure corpus
+*** [ ] eeghdf -> fif/mne objects
