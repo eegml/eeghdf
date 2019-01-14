@@ -8,7 +8,7 @@ from distutils.core import setup
 
 setup(
     name = 'eeg-hdfstorage',
-    version='0.0.3',
+    version='0.0.4',
     description="""eeg storage in hdf5 + related functions""",
     author="""Chris Lee-Messer""",
     url="https://github.com/cleemesser/eeg-hdfstorage",

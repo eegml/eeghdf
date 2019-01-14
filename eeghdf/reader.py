@@ -286,13 +286,18 @@ class Eeghdf:
         annot = rec0['edf_annotations'] # but these are in a funny 3 array format
         antext = [s.decode('utf-8') for s in annot['texts'][:]]
         self._annotation_text = antext
+        
+        def to_float(binary_string):
+            if binary_string:
+                return float(binary_string)
+            else: 
+                return 0.0
+            
+        self._annotation_durations_sec = [to_float(bs) for bs in annot['durations_char16']]
         starts100ns = [xx for xx in annot['starts_100ns'][:]]
-        self._annotation_start100s = starts100ns
-        start_time_sec = [xx/10**7 for xx in starts100ns] # 10**7 * 100ns = 1sec
-        df = pd.DataFrame(data=antext,columns=['text'])
-        df['starts_sec'] = start_time_sec
-        df['starts_100ns'] = starts100ns
-        self.edf_annotations_df = df
+        # annotation start time in 100ns increments 
+        self._annotation_start100ns = starts100ns 
+        self._annotations_df = None
 
         self._physical_dimensions = None
 
@@ -307,9 +312,8 @@ class Eeghdf:
         # note I am requiring this duration_seconds value to be an integer at
         # this time given edf conventions, but this may need to change
         self.duration_seconds = int(round(self.number_samples_per_channel/ self.sample_frequency,0))
-
-
-
+        self.duration_seconds_float = self.number_samples_per_channel/ self.sample_frequency
+        
     # @property
     # def duration_seconds(self):
     #     """
@@ -333,6 +337,37 @@ class Eeghdf:
     def annotations_contain(self, pat, case=False):
         df = self.edf_annotations_df
         return df[df.text.str.contains(pat,case=case)]
+
+    @property                                      
+    def edf_annotations_df(self):
+        """compute this on demand returns a pandas DataFrame"""
+        if not self._annotations_df:
+            starts100ns = self._annotation_start100ns
+                                      
+            start_time_sec = [xx/10**7 for xx in starts100ns] # 10**7 * 100ns = 1sec
+            df = pd.DataFrame(data=antext,columns=['text'])
+            df['starts_sec'] = start_time_sec
+            df['starts_100ns'] = starts100ns
+            self._annotations_df = df
+            return df
+        else:
+            return self.edf_annotations_df
+
+    @property
+    def edf_annotations_sec(self):
+
+        """compute this on demand: 
+        return a list of tuples 
+        [(start, duration, description)...]
+        units in floating point seconds
+        ? might want sample numbers"""
+
+        starts100ns = self._annotation_start100ns
+        duration_sec = self._annotation_durations_sec
+        start_time_sec = [xx/10**7 for xx in starts100ns] # 10**7 * 100ns = 1sec
+        antext = self._annotation_text
+        
+        return zip(start_time_sec, duration_sec, antext)
 
     @property
     def physical_dimensions(self):
