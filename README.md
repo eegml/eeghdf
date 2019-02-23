@@ -11,8 +11,9 @@ Project to develop a easily accessible format for storing EEG in a way that is e
 
 
 ## Simple install for developers
-- git clone eeg-hdfstorage
+- change to the desired python environment
 ```
+git clone https://github.com/eegml/eeg-hdfstorage.git 
 pip install -e eeg-hdfstorage
 ```
 
