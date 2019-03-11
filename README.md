@@ -9,6 +9,14 @@ Project to develop a easily accessible format for storing EEG in a way that is e
 - look to add fields for clinical report text
 - look to add field for montages and electrode geometry
 
+
+## Simple install for developers
+- change to the desired python environment
+```
+git clone https://github.com/eegml/eeg-hdfstorage.git 
+pip install -e eeg-hdfstorage
+```
+
 ## To Do
 
 - [x] code to write file, target initial release version is 1000
