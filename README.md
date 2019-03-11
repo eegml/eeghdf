@@ -16,9 +16,9 @@ Project to develop a easily accessible format for storing EEG in a way that is e
 git clone https://github.com/eegml/eeg-hdfstorage.git 
 pip install -e eeg-hdfstorage
 ```
-- or if you just want to install as a requirement into a virtual env. Put this into your requirements.txt
+- or if you just want to install as a requirement into a virtual env. Put this into your requirements.txt. The repo will be cloned into ./src/eeg-hdfstorage and installed
 ```
--e git+https://github.com/eegml/eeg-hdfstorage.git#eeg=eeghdf
+-e git+https://github.com/eegml/eeg-hdfstorage#egg=eeg-hdfstorage
 ```
 ## To Do
 
