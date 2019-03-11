@@ -4,7 +4,7 @@ Project to develop a easily accessible format for storing EEG in a way that is e
 
 - hdf5 based format
 - looked at edf and neo formats, see [Neurodata Without Borders](https://github.com/NeurodataWithoutBorders)
-- simplier than neo, but may need more of neo's strucures
+- simplier than neo, but may need more of neo's structures
 - compare with [MNE](http://martinos.org/mne/stable/index.html) fif format of mne project to evolve
 - look to add fields for clinical report text
 - look to add field for montages and electrode geometry
