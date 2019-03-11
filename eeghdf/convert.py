@@ -4,7 +4,7 @@ import mne
 
 
 # TODO !!!:
-# def hdf2edf(hf)
+# def hdf2edf(hf) # so can reverse process
 
 
 def sechdf1020_to_mne(hf):
