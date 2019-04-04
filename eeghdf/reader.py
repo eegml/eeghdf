@@ -368,7 +368,7 @@ class Eeghdf:
             self._annotations_df = df
             return df
         else:
-            return self.edf_annotations_df
+            return self._annotations_df
 
     @property
     def edf_annotations_sec(self):
