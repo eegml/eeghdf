@@ -359,11 +359,10 @@ class Eeghdf:
         """compute this on demand returns a pandas DataFrame"""
         if not self._annotations_df:
             starts100ns = self._annotation_start100ns
-
             start_time_sec = [
-                xx / 10 ** 7 for xx in starts100ns
-            ]  # 10**7 * 100ns = 1sec
-            df = pd.DataFrame(data=antext, columns=["text"])
+                xx / 10 ** 7 for xx in starts100ns  # 10**7 * 100ns = 1sec
+            ]
+            df = pd.DataFrame(data=self._annotation_text, columns=["text"])
             df["starts_sec"] = start_time_sec
             df["starts_100ns"] = starts100ns
             self._annotations_df = df
