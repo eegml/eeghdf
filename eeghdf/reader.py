@@ -357,7 +357,7 @@ class Eeghdf:
     @property
     def edf_annotations_df(self):
         """compute this on demand returns a pandas DataFrame"""
-        if not self._annotations_df:
+        if self._annotations_df is None:
             starts100ns = self._annotation_start100ns
             start_time_sec = [
                 xx / 10 ** 7 for xx in starts100ns  # 10**7 * 100ns = 1sec
