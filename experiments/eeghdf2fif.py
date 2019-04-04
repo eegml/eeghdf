@@ -139,7 +139,15 @@ def ehdf2mne(hf):
     # sex : int
     # Subject sex (0=unknown, 1=male, 2=female).
 
+    # work on adding annotations 
+    starts_sec = [1e-7 * t100ns for t100ns in hf._annotation_start100ns]
+    mne_annot = mne.Annotations(onset=starts_sec, duration=hf._annotation_durations_sec,
+                                description=hf._annotation_text)
+
     customraw = mne.io.RawArray(data, info)
+    customraw.set_annotations(mne_annot)    
+
+
     return customraw, info, useful_channels
 
 
@@ -163,8 +171,4 @@ if __name__ == '__main__':
 
     raw, info, chans = ehdf2mne(hf)
 
-    # work on adding annotations 
-    starts_sec = [1e-7 * t100ns for t100ns in hf._annotation_start100ns]
-    mne_annot = mne.Annotations(onset=starts_sec, duration=hf._annotation_durations_sec,
-                                description=hf._annotation_text)
-    raw.set_annotations(mne_annot)    
+    raw.plot()

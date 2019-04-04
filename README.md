@@ -3,12 +3,23 @@
 Project to develop a easily accessible format for storing EEG in a way that is easy to access for machine learning.
 
 - hdf5 based format
-- looked at edf and neo formats, see NWB
+- looked at edf and neo formats, see [Neurodata Without Borders](https://github.com/NeurodataWithoutBorders)
 - simplier than neo, but may need more of neo's strucures
-- compare with fif format of mne project to evolve
+- compare with [MNE](http://martinos.org/mne/stable/index.html) fif format of mne project to evolve
 - look to add fields for clinical report text
 - look to add field for montages and electrode geometry
 
+
+## Simple install for developers
+- change to the desired python environment
+```
+git clone https://github.com/eegml/eeg-hdfstorage.git 
+pip install -e eeg-hdfstorage
+```
+- or if you just want to install as a requirement into a virtual env. Put this into your requirements.txt. The repo will be cloned into ./src/eeg-hdfstorage and installed
+```
+-e git+https://github.com/eegml/eeg-hdfstorage#egg=eeg-hdfstorage
+```
 ## To Do
 
 - [x] code to write file, target initial release version is 1000
