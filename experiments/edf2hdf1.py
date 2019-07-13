@@ -142,6 +142,7 @@ def edf2hdf(fn, outfn='', anonymize=False, verbose=False):
             debug('predicted age (seconds): %s' % age.total_seconds())
         else:
             age = datetime.timedelta(seconds=0)
+            birthdate = ''
 
         if anonymize:
             raise Exception('not implemented')
@@ -237,11 +238,15 @@ def edf2hdf(fn, outfn='', anonymize=False, verbose=False):
         #pprint.pprint(signal_transducers)
 
         with eeghdf.EEGHDFWriter(outfn, 'w') as eegf:
+            if header['birthdate_date']:
+                birthdate_isostring = header['birthdate_date'].strftime('%Y-%m-%d')
+            else:
+                birthdate_isostring = ''
+                
             eegf.write_patient_info(patient_name=header['patient_name'],
                                     patientcode=header['patientcode'],
                                     gender=header['gender'],
-                                    birthdate_isostring=header['birthdate_date'].strftime(
-                                        '%Y-%m-%d'),
+                                    birthdate_isostring=birthdate_isostring,
                                     # gestational_age_at_birth_days
                                     # born_premature
                                     patient_additional=header['patient_additional'])
