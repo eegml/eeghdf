@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-This will convert an edf file into one encoded in the eeghdf format
+"""This will convert an edf file into one encoded in the eeghdf format
 it assumes the incoming file has a extension like .edf or .edf+ or .bdf
 and produces an output file with the extension .eeg.h5
 
 If the signal labels match the typical ones at Stanford and LPCH, then they are normalized
 to a standard which looks nicer. Otherwise they are left unchanged.
+
+This will not handle all sorts of EDF files - spcifically it will not handle ones
+with different sampling rates in different channels
 """
 from __future__ import (
     division,
@@ -42,6 +44,7 @@ def debug(*args):
     pass
 
 DEFAULT_EXT = ".eeg.h5"  # default ending for files in the format defined by eeghdf
+DEFAULT_BIRTHDATE = datetime.date(1900,1,1)
 
 # really need to check the original data type and then save as that datatype along with the necessary conversion factors
 # so can convert voltages on own
@@ -201,14 +204,14 @@ lpch2edf_fixed_len_labels = dict(
     # O2
     IZ="EEG Iz          ",
 )
-lpch2edf_fixed_len_labels
 
 
 LPCH_TO_STD_LABELS_STRIP = {
     k: v.strip() for k, v in iteritems(lpch2edf_fixed_len_labels)
 }
 
-# this is not used currently
+# this is not used currently but shows how the lpch/stanford labels map to
+# EDF standard text labels
 LPCH_COMMON_1020_LABELS_to_EDF_STANDARD = {
     "Fp1": "Fp1-REF",
     "Fp2": "Fp2-REF",
@@ -291,7 +294,7 @@ def edf2h5_float32(fn, outfn="", hdf_dir="", anonymous=False):
 
         nsamples0 = ef.samples_in_file(0)
 
-        print("nsigs=%s, fs0=%s, nsamples0=%s" % (nsigs, fs0, nsamples0))
+        debug("nsigs=%s, fs0=%s, nsamples0=%s" % (nsigs, fs0, nsamples0))
 
         # create file 'w-' -> fail if exists , w -> truncate if exists
         hdf = h5py.File(outfn, "w")
@@ -320,14 +323,15 @@ def edf2h5_float32(fn, outfn="", hdf_dir="", anonymous=False):
         hdf.attrs["nsamples0"] = nsamples0
         patient.attrs["gender_b"] = ef.gender_b
         patient.attrs["patientname"] = ef.patient_name  # PHI
-        print("birthdate: %s" % ef.birthdate_b, type(ef.birthdate_b))
+
+        debug("birthdate: %s" % ef.birthdate_b, type(ef.birthdate_b))
         # this is a string -> date (datetime)
         if not ef.birthdate_b:
-            print("no birthday in this file")
+            debug("no birthday in this file")
             birthdate = None
         else:
             birthdate = dateutil.parser.parse(ef.birthdate_b)
-            print("birthdate (date object):", birthdate_b)
+            debug("birthdate (date object):", birthdate_b)
 
         start_date_time = datetime.datetime(
             ef.startdate_year,
@@ -337,10 +341,10 @@ def edf2h5_float32(fn, outfn="", hdf_dir="", anonymous=False):
             ef.starttime_minute,
             ef.starttime_second,
         )  # ,tzinfo=dateutil.tz.tzlocal())
-        print(start_date_time)
+        debug(start_date_time)
         if start_date_time and birthdate:
             age = start_date_time - birthdate
-            print("age:", age)
+            debug("age:", age)
         else:
             age = None
 
@@ -378,7 +382,7 @@ def edf2h5_float32(fn, outfn="", hdf_dir="", anonymous=False):
             (nsigs, samples_per_chunk), dtype="float64"
         )  # buffer is float64_t
 
-        print("nchunks: ", nchunks, "samples_per_chunk:", samples_per_chunk)
+        debug("nchunks: ", nchunks, "samples_per_chunk:", samples_per_chunk)
 
         bookmark = 0  # mark where were are in samples
         for ii in range(nchunks):
@@ -387,7 +391,7 @@ def edf2h5_float32(fn, outfn="", hdf_dir="", anonymous=False):
                 # np.ndarray[np.float64_t, ndim = 1] sigbuf)
                 # read_phys_signal(chn, 0, nsamples[chn], v)
                 # read_phys_signal(self, signalnum, start, n, np.ndarray[np.float64_t, ndim=1] sigbuf)
-                print(ii, jj)
+                debug(ii, jj)
                 ef.read_phys_signal(
                     jj, bookmark, samples_per_chunk, buf[jj]
                 )  # readsignal converts into float
@@ -396,7 +400,7 @@ def edf2h5_float32(fn, outfn="", hdf_dir="", anonymous=False):
             # bookmark should be ii*fs0
             bookmark += samples_per_chunk
         left_over_samples = nsamples0 - nchunks * samples_per_chunk
-        print("left_over_samples:", left_over_samples)
+        debug("left_over_samples:", left_over_samples)
 
         if left_over_samples > 0:
             for jj in range(nsigs):
@@ -437,7 +441,7 @@ def edf_block_iter_generator(edf_file, nsamples, samples_per_chunk, dtype="int32
 
         yield (buf, mark, samples_per_chunk)
         mark += samples_per_chunk
-        # print('mark:', mark)
+        # debug('mark:', mark)
     # left overs
     if left_over_samples > 0:
         for cc in range(nchan):
@@ -454,22 +458,22 @@ def dig2phys(eeghdf, start, end, chstart, chend):
     dmaxs = eeghdf["signal_digital_maxs"][:]
     phys_maxs = eeghdf["signal_physical_maxs"][:]
     phys_mins = eeghdf["signal_physical_mins"][:]
-    print("dmaxs:", repr(dmaxs))
-    print("dmins:", repr(dmins))
-    print("dmaxs[:] - dmins[:]", dmaxs - dmins)
-    print("phys_maxs", phys_maxs)
-    print("phys_mins", phys_mins)
+    debug("dmaxs:", repr(dmaxs))
+    debug("dmins:", repr(dmins))
+    debug("dmaxs[:] - dmins[:]", dmaxs - dmins)
+    debug("phys_maxs", phys_maxs)
+    debug("phys_mins", phys_mins)
     bitvalues = (phys_maxs - phys_mins) / (dmaxs - dmins)
     offsets = phys_maxs / bitvalues - dmaxs
-    print("bitvalues, offsets:", bitvalues, offsets)
-    print("now change their shape to column vectors")
+    debug("bitvalues, offsets:", bitvalues, offsets)
+    debug("now change their shape to column vectors")
     for arr in (bitvalues, offsets):
         if len(arr.shape) != 1:
-            print("logical errror %s shape is unexpected" % arr.shape)
+            debug("logical errror %s shape is unexpected" % arr.shape)
             raise Exception
         s = arr.shape
         arr.shape = (s[0], 1)
-    print("bitvalues, offsets:", bitvalues, offsets)
+    debug("bitvalues, offsets:", bitvalues, offsets)
     # buf[i] = phys_bitvalue * (phys_offset + (double)var.two_signed[0]);
     dig_signal = eeghdf["signals"][chstart:chend, start:end]
     # signal = bitvalues[chstart:chend] *(dig_signal[chstart:chend,:] + offsets[chstart:chend])
@@ -501,23 +505,31 @@ def first(mapping):
 
 def create_simple_anonymous_header(header):
     hdr = header.copy()
-    print(f"header: {hdr}")
+    debug(f"header: {hdr}")
     hdr["patient_name"] = "anonymous"
     if hdr["patientcode"]:
         hdr["patientcode"] = "00000000"
     dob = hdr["birthdate_date"]
-    age_time_offset = hdr["birthdate_date"] - DEFAULT_BIRTHDATE
+    if not hdr["birthdate_date"]: # 0-len string
+        age_time_offset = datetime.timedelta(seconds=0)
+    else:
+        age_time_offset = hdr["birthdate_date"] - DEFAULT_BIRTHDATE
     hdr["birthdate_date"] = DEFAULT_BIRTHDATE
 
     hdr["file_name"]
-    hdr["start_datetime"] = hdr["start_datetime"] - age_time_offset
-    hdr["startdate_date"] = hdr["start_datetime"].date()
+    if hdr["start_datetime"]:
+        hdr["start_datetime"] = hdr["start_datetime"] - age_time_offset
+
+    if hdr["startdate_date"]:
+        hdr["startdate_date"] = hdr["start_datetime"].date()
 
     hdr["file_duration_seconds"]
 
     hdr["admincode"] = ""
     hdr["technician"] = ""
-    print(f"anonymized hdr: {hdr}")
+    hdr['patient_additional'] = ""
+    debug(f"anonymized hdr:")
+    debug(pprint.pformat(hdr))
     return hdr
 
 
@@ -528,10 +540,10 @@ def find_blocks(arr):
     dfs_ind = np.where(dfs != 0.0)[0]
     last_ind = 0
     for dd in dfs_ind + 1:
-        print("block:", arr[last_ind:dd])
+        debug("block:", arr[last_ind:dd])
         blocks.append((last_ind, dd))
         last_ind = dd
-    print("last block:", arr[last_ind:])
+    debug("last block:", arr[last_ind:])
     blocks.append((last_ind, len(arr)))
     return blocks
 
@@ -556,22 +568,22 @@ def find_blocks2(arr):
 def test_find_blocks1():
     s = [250.0, 250.0, 250.0, 1.0, 1.0, 1000.0, 1000.0]
     blocks = find_blocks(s)
-    print("blocks:")
-    print(blocks)
+    debug("blocks:")
+    debug(blocks)
 
 
 def test_find_blocks2():
     s = [250.0, 250.0, 250.0, 1.0, 1.0, 1000.0, 1000.0]
     blocks = find_blocks2(s)
-    print("blocks:")
-    print(blocks)
+    debug("blocks:")
+    debug(blocks)
 
 
 def test_find_blocks2_2():
     s = [100, 100, 100, 100, 100, 100, 100, 100]
     blocks = find_blocks2(s)
-    print("blocks:")
-    print(blocks)
+    debug("blocks:")
+    debug(blocks)
 
 
 def edf2hdf(fn, outfn="", hdf_dir="", anonymize=False):
@@ -589,7 +601,7 @@ def edf2hdf(fn, outfn="", hdf_dir="", anonymize=False):
 
         base = base + DEFAULT_EXT
         outfn = os.path.join(hdf_dir, base)
-        # print('outfn:', outfn)
+        # debug('outfn:', outfn)
         # all the data point related stuff
 
     with edflib.EdfReader(fn) as ef:
@@ -618,8 +630,8 @@ def edf2hdf(fn, outfn="", hdf_dir="", anonymize=False):
                 ef.starttime_second,
             ),
             "starttime_subsecond_offset": ef.starttime_subsecond,
-            "birthdate_date": ef.birthdate_date,
-            "patient_additional": ef.patient_additional,
+            "birthdate_date": ef.birthdate_date, # str
+            "patient_additional": ef.patient_additional, # str
             "admincode": ef.admincode,  # usually the study eg. C13-100
             "technician": ef.technician,
             "equipment": ef.equipment,
@@ -628,7 +640,7 @@ def edf2hdf(fn, outfn="", hdf_dir="", anonymize=False):
         }
         # defbug
         debug("original header")
-        pprint.pprint(header)
+        debug(pprint.pformat(header))
 
         #  use arrow
         start_datetime = header["start_datetime"]
@@ -665,14 +677,14 @@ def edf2hdf(fn, outfn="", hdf_dir="", anonymize=False):
         dfs_ind = dfs_ind[0]
         last_ind = 0
         for dd in dfs_ind + 1:
-            print("block:", signal_frequency_array[last_ind:dd])
+            debug("block:", signal_frequency_array[last_ind:dd])
             last_ind = dd
-        print("last block:", signal_frequency_array[last_ind:])
+        debug("last block:", signal_frequency_array[last_ind:])
 
-        print("where does sampling rate change?", np.where(dfs != 0.0))
-        print("elements:", signal_frequency_array[np.where(dfs != 0.0)])
-        print("signal_frequency_array::\n", repr(signal_frequency_array))
-        print("len(signal_frequency_array):", len(signal_frequency_array))
+        debug("where does sampling rate change?", np.where(dfs != 0.0))
+        debug("elements:", signal_frequency_array[np.where(dfs != 0.0)])
+        debug("signal_frequency_array::\n", repr(signal_frequency_array))
+        debug("len(signal_frequency_array):", len(signal_frequency_array))
 
         assert all(signal_frequency_array[:-3] == fs0)
 
@@ -685,7 +697,7 @@ def edf2hdf(fn, outfn="", hdf_dir="", anonymize=False):
         # assert all(num_samples_per_signal == nsamples0)
 
         file_duration_sec = ef.file_duration_seconds
-        # print("file_duration_sec", repr(file_duration_sec))
+        # debug("file_duration_sec", repr(file_duration_sec))
 
         # Note that all annotations except the top row must also specify a duration.
 
@@ -703,61 +715,61 @@ def edf2hdf(fn, outfn="", hdf_dir="", anonymize=False):
 
         annotations_b = ef.read_annotations_b_100ns_units()
 
-        # print("annotations_b::\n")
+        # debug("annotations_b::\n")
         # pprint.pprint(annotations_b)  # get list of annotations
 
         signal_text_labels = ef.get_signal_text_labels()
-        print("signal_text_labels::\n")
-        pprint.pprint(signal_text_labels)
-        print("normalized text labels::\n")
+        debug("signal_text_labels::\n")
+        debug(pprint.pformat(signal_text_labels))
+        debug("normalized text labels::\n")
         signal_text_labels_lpch_normalized = [
             normalize_lpch_signal_label(label) for label in signal_text_labels
         ]
-        pprint.pprint(signal_text_labels_lpch_normalized)
+        debug(pprint.pformat(signal_text_labels_lpch_normalized))
 
         # ef.recording_additional
 
-        # print()
+        # debug()
         signal_digital_mins = np.array([ef.digital_min(ch) for ch in range(nsigs)])
         signal_digital_total_min = min(signal_digital_mins)
 
-        print("digital mins:", repr(signal_digital_mins))
-        print("digital total min:", repr(signal_digital_total_min))
+        debug("digital mins:", repr(signal_digital_mins))
+        debug("digital total min:", repr(signal_digital_total_min))
 
         signal_digital_maxs = np.array([ef.digital_max(ch) for ch in range(nsigs)])
         signal_digital_total_max = max(signal_digital_maxs)
 
-        print("digital maxs:", repr(signal_digital_maxs))
-        # print("digital total max:", repr(signal_digital_total_max))
+        debug("digital maxs:", repr(signal_digital_maxs))
+        # debug("digital total max:", repr(signal_digital_total_max))
 
         signal_physical_dims = [ef.physical_dimension(ch) for ch in range(nsigs)]
-        # print('signal_physical_dims::\n')
-        # pprint.pprint(signal_physical_dims)
-        # print()
+        # debug('signal_physical_dims::\n')
+        # pprint.pformat(signal_physical_dims)
+        # debug()
 
         signal_physical_maxs = np.array([ef.physical_max(ch) for ch in range(nsigs)])
 
-        # print('signal_physical_maxs::\n', repr(signal_physical_maxs))
+        # debug('signal_physical_maxs::\n', repr(signal_physical_maxs))
 
         signal_physical_mins = np.array([ef.physical_min(ch) for ch in range(nsigs)])
 
-        # print('signal_physical_mins::\n', repr(signal_physical_mins))
+        # debug('signal_physical_mins::\n', repr(signal_physical_mins))
 
         # this don't seem to be used much so I will put at end
         signal_prefilters = [ef.prefilter(ch).strip() for ch in range(nsigs)]
-        # print('signal_prefilters::\n')
-        # pprint.pprint(signal_prefilters)
-        # print()
+        # debug('signal_prefilters::\n')
+        # pprint.pformat(signal_prefilters)
+        # debug()
         signal_transducers = [ef.transducer(ch).strip() for ch in range(nsigs)]
-        # print('signal_transducers::\n')
-        # pprint.pprint(signal_transducers)
+        # debug('signal_transducers::\n')
+        # pprint.pformat(signal_transducers)
 
         with eeghdf.EEGHDFWriter(outfn, "w") as eegf:
             eegf.write_patient_info(
                 patient_name=header["patient_name"],
                 patientcode=header["patientcode"],
                 gender=header["gender"],
-                birthdate_isostring=header["birthdate_date"],
+                birthdate_isostring=str(header["birthdate_date"]),
                 # gestational_age_at_birth_days
                 # born_premature
                 patient_additional=header["patient_additional"],
@@ -831,6 +843,6 @@ if __name__ == "__main__":
         help="add flag to do simple anonymization of file patient information",
     )
     args = parser.parse_args()
-    print(args)
+    debug(args)
 
-    edf2hdf(args.filename, outfn=args.output_file)
+    edf2hdf(args.filename, outfn=args.output_file, anonymize=args.anonymize)
