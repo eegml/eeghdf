@@ -20,7 +20,7 @@ from future.utils import iteritems
 from builtins import range  # range and switch xrange -> range
 # from past.builtins import xrange # later, move to from builtins import
 
-import edflib
+import edflib # have several choices for reading edf, this is my library
 import eeghdf 
 
 
