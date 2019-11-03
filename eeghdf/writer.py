@@ -456,7 +456,17 @@ class EEGHDFWriter(object):
         that can be serialized into the hdf dataset
 
         Note, the left over samples: total_samples - nchunks * samples_per_chunk
-        need to be written at the end.
+        need to be written at the end by the iterator
+
+        it is used like this:
+
+        for buf, mark, num in block_iterator:
+            signals[:, mark : mark + num] = buf
+
+        so the block_iterator needs to yield:
+          a @buf buffer which holds the short bit of data
+          a current position @mark -- which tells us 
+           and number @num of entries to write
         """
         record = record_block  # hdf group
         signals = record["signals"]
