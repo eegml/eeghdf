@@ -2,4 +2,6 @@
 # the one on pypi is not going to work with python3
 # probably should make this point to a particular commit
 # it requires libsamplerate to be installed (on linux)
+# on ubuntu 18.04 do:
+#     sudo apt install libsamplerate-dev
 -e git+https://github.com/cournape/samplerate/#egg=samplerate
