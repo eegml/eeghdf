@@ -36,8 +36,9 @@ from builtins import range  # range and switch xrange -> range
 
 # from past.builtins import xrange # later, move to from builtins import
 
-import edflib
-import eeghdf
+
+import edflib # have several choices for reading edf, this is my library version 0.76 and 0.8 work
+import eeghdf 
 
 #debug = print
 def debug(*args):
