@@ -48,9 +48,14 @@ def record_edf_annotations_to_sec_items(raw_edf_annotations):
 def electrode_label_to_shortcut(label):
     """
     EEG Fp1 -> Fp1
-    
+    EEG Fp1-Ref -> Fp1
     """
     l = label.replace("EEG", "")
+
+    l = label.replace("Ref", "")
+    l = label.replace("REF", "")
+    l = label.replace("ref", "")
+    
     l = l.replace("ECG", "")
     l = l.strip()
     return l
