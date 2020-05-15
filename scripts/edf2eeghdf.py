@@ -592,17 +592,26 @@ def edf2hdf(fn, outfn="", hdf_dir="", anonymize=False):
     convert an edf file to hdf5 using fairly straightforward mapping
     return True if successful
     
+    by default (if outfn and hdf_dir are not set)
+       the output is put in the same directory as the input file
+    you can also specify the output file (full path) by setting outfn directly
+    or simple specify a different target directory by specifying @hdf_dir as a directory path
+
     @database_sourcel_label tells us which database it came from LPCH_NK or STANFORD_NK
        this is important!
     """
 
     if not outfn:
+        parentdir = os.path.dirname(fn)
         base = os.path.basename(fn)
         base, ext = os.path.splitext(base)
 
         base = base + DEFAULT_EXT
-        outfn = os.path.join(hdf_dir, base)
-        # debug('outfn:', outfn)
+        if hdf_dir:
+            outfn = os.path.join(hdf_dir, base)
+        else:
+            outfn = os.path.join(parentdir, base)
+            # debug('outfn:', outfn)
         # all the data point related stuff
 
     with edflib.EdfReader(fn) as ef:
