@@ -52,14 +52,25 @@ def electrode_label_to_shortcut(label):
     """
     l = label.replace("EEG", "")
 
-    l = label.replace("Ref", "")
-    l = label.replace("REF", "")
-    l = label.replace("ref", "")
+    l = l.replace("-Ref", "")
+    l = l.replace("-REF", "")
+    l = l.replace("-ref", "")
     
     l = l.replace("ECG", "")
     l = l.strip()
     return l
 
+def test_electrode_label_to_shortcut(in_out=None):
+    if not in_out:
+        in_out = [
+            ("EEG Fp1-Ref", "Fp1"),
+            ("EEG T3", "T3"),
+            ("C3 ", "C3")
+            ]
+    for xx,yy in in_out:
+        res = electrode_label_to_shortcut(xx)
+        print(res)
+        assert yy == res
 
 # so given a hdf
 # signals(integers) -> optional-uV-conversion -> optional montage conversion (???scope of this project)
