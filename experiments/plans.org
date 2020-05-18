@@ -1,4 +1,4 @@
-* eeg-hdfstorage experiments
+* eeghdf experiments
 ** downsampling
 *** resampy vs scikit.samplerate vs scipy.*poly
 So far I am using scikit.samplerate but I need to use the github version

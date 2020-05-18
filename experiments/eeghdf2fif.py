@@ -7,7 +7,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 #%% # data path
-DATAPATH='/mnt/home2/clee/code/eegml/eeg-hdfstorage/data'
+DATAPATH='/mnt/home2/clee/code/eegml/eeghdf/data'
 #%%
 # check versions
 

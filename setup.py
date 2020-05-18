@@ -7,14 +7,15 @@ from distutils.core import setup
 
 
 setup(
-    name="eeg-hdfstorage",
-    version="0.0.4",
+    name="eeghdf",
+    version="0.1",
     description="""eeg storage in hdf5 + related functions""",
     author="""Chris Lee-Messer""",
-    url="https://github.com/cleemesser/eeg-hdfstorage",
+    url="https://github.com/cleemesser/eeghdf",
     # download_url="",
     classifiers=["Topic :: Science :: EEG"],
     packages=["eeghdf"],
+    long_description=open('README.md').read(),
     # package_data={}
     # data_files=[],
     # scripts = [],

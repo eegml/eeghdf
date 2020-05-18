@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
+"""
+some basic conversion utilities
+I'm not sure how useful these will be as every source may require some variation in conversion 
+"""
 
+# convert eeg-hdf storage to mne raw object
 import mne
 
 

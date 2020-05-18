@@ -8,9 +8,10 @@ edf2hdf1.py <edffilename.edf> [-o output_file_name]
 # installation works with python 3.5, 3.6, 3.7
 # baseline use was with anaconda 5.2, 5.3 so numpy and h5py already installed
 # pip install edflib arrow
-# pip install -e git+https://github.com/eegml/eeg-hdfstorage#egg=eeg-hdfstorage
+# pip install -e git+https://github.com/eegml/eeghdf#egg=eeghdf
 
 # TODO: FIXME!!! remove the EDF annotations channel, don't need to save that
+#                probably
 
 import os.path
 import datetime

@@ -46,9 +46,16 @@ def record_edf_annotations_to_sec_items(raw_edf_annotations):
 
 
 def electrode_label_to_shortcut(label):
-    """
+    """Purpose of this is to clear out cruft used in standard nomenclature (EDF standard text)
+    to label electrode channels so that it is possible to describe montages relatively "generically"
+
+    At one point I also decided to get rid of ECG channels but I do not know why
+    I did this any more.  I would think that ECG and EKG should remain
+    untouched. I suspected I did this so they would not be displayed at all.
+
     EEG Fp1 -> Fp1
     EEG Fp1-Ref -> Fp1
+
     """
     l = label.replace("EEG", "")
 
