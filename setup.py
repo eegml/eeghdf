@@ -13,7 +13,9 @@ setup(
     author="""Chris Lee-Messer""",
     url="https://github.com/cleemesser/eeghdf",
     # download_url="",
-    classifiers=["Topic :: Science :: EEG"],
+    classifiers=["Topic :: Scientific/Engineering :: Medical Science Apps.",
+                 "Development Status :: 4 - Beta",
+                 "Intended Audience :: Science/Research"],
     packages=["eeghdf"],
     long_description=open('README.md').read(),
     # package_data={}
