@@ -11,7 +11,7 @@ setup(
     version="0.1",
     description="""eeg storage in hdf5 + related functions""",
     author="""Chris Lee-Messer""",
-    url="https://github.com/cleemesser/eeghdf",
+    url="https://github.com/eegml/eeghdf",
     # download_url="",
     classifiers=["Topic :: Scientific/Engineering :: Medical Science Apps.",
                  "Development Status :: 4 - Beta",
