@@ -21,4 +21,5 @@ setup(
     # package_data={}
     # data_files=[],
     # scripts = [],
+    install_requires = ['numpy', 'h5py', 'pandas', 'future'],
 )
