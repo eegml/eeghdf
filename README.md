@@ -2,13 +2,20 @@
 
 Project to develop a easily accessible format for storing EEG in a way that is easy to access for machine learning.
 
-- hdf5 based format
-- looked at edf and neo formats, see [Neurodata Without Borders](https://github.com/NeurodataWithoutBorders)
-- simplier than neo, but may need more of neo's structures
+- hdf5 based format with the following advantages:
+  - industry standard format, supported in many languages (C, python, javascript, matlab..)
+  - compression, checksums
+  - efficient reading (the whole file is not read into memory to access data)
+  - "self documenting" and extensible
+  - advanced features: parallel readers/single writer, MPI, streaming supported
+  
+- looked at edf and neo formats, see [Neurodata Without Borders](https://github.com/NeurodataWithoutBorders). Compare with [XDF](https://github.com/sccn/xdf/).
+- simplier than neo, but may need more of neo's structures as use grows
 - compare with [MNE](http://martinos.org/mne/stable/index.html) fif format of mne project to evolve
+- looke to support multiple records and different sampling rates
 - look to add fields for clinical report text
 - look to add field for montages and electrode geometry
-
+- "extension" group
 
 ## Simple install for developers
 - change to the desired python environment
