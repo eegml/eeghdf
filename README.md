@@ -26,6 +26,17 @@ pip install -e eeghdf
 - or if you just want to install as a requirement into a virtual env. Put this into your requirements.txt. The repo will be cloned into ./src/eeghdf and installed
 ```
 -e git+https://github.com/eegml/eeghdf#egg=eeghdf
+
+```
+
+### Re-sampling 
+There are many ways to resample signals. In my examples I used an approach based upon libsamplerate because it seemed to give accurate results. Depending on your
+platform there are many options. Recently I have been suing pytorch based tools a lot, torchaudio has resamplinge tools and librosa is looks very impressive.
+
+Installation will vary but on ubuntu 18.04 I did:
+```
+sudo apt install libsamplerate-dev
+pip install git+https://github.com/cournape/samplerate/#egg=samplerate
 ```
 ## To Do
 
