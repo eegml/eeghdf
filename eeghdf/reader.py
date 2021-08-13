@@ -3,6 +3,7 @@
 functions to help with reading eeghdf files
 versions 1...
 """
+# TODO: rename electrode -> signal (eeg channel) need to distinguish
 # python 2/3 compatibility - write as if in python 3.5
 from __future__ import division, absolute_import
 from __future__ import print_function, unicode_literals
@@ -44,8 +45,10 @@ def record_edf_annotations_to_sec_items(raw_edf_annotations):
     items = zip(antexts, starts_sec_arr)
     return items
 
-
 def electrode_label_to_shortcut(label):
+    return signal_label_to_shortcut(label)
+
+def signal_label_to_shortcut(label):
     """Purpose of this is to clear out cruft used in standard nomenclature (EDF standard text)
     to label electrode channels so that it is possible to describe montages relatively "generically"
 
@@ -67,7 +70,7 @@ def electrode_label_to_shortcut(label):
     l = l.strip()
     return l
 
-def test_electrode_label_to_shortcut(in_out=None):
+def test_signal_label_to_shortcut(in_out=None):
     if not in_out:
         in_out = [
             ("EEG Fp1-Ref", "Fp1"),
@@ -75,7 +78,7 @@ def test_electrode_label_to_shortcut(in_out=None):
             ("C3 ", "C3")
             ]
     for xx,yy in in_out:
-        res = electrode_label_to_shortcut(xx)
+        res = signal_label_to_shortcut(xx)
         print(res)
         assert yy == res
 
@@ -308,7 +311,8 @@ class Eeghdf:
 
         self.rawsignals = rec0["signals"]
         labels_bytes = rec0["signal_labels"]
-        self.electrode_labels = [str(s, "ascii") for s in labels_bytes]
+        self.signal_labels = [str(s, "ascii") for s in labels_bytes]
+        self.electrode_labels = self.signal_labels # TODO: mark this as deprecated
 
         self._SAMPLE_TO_UNITS = (
             False
@@ -482,6 +486,7 @@ class Eeghdf:
     #    self.# record['signal_physical_maxs'] = signal_physical_maxs
     # record['signal_digital_mins'] = signal_digital_mins
 
+    ### TODO: add deprecation warning to elabel and questin use of shortcut 
     @property
     def shortcut_elabels(self):
         """These labels are used in montages and other displays
@@ -489,6 +494,13 @@ class Eeghdf:
         """
         return [electrode_label_to_shortcut(ss) for ss in self.electrode_labels]
 
+    @property
+    def shortcut_signal_labels(self):
+        """These labels are used in montages and other displays
+        can further customize by adding to electrode_label_to_shortcut
+        """
+        return [signal_label_to_shortcut(ss) for ss in self.signal_labels]
+    
 
 class Eeghdf_ver2(Eeghdf):
     __version__ = 2
