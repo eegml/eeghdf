@@ -199,12 +199,16 @@ class EEGHDFWriter(object):
         transducer_ds = record.create_dataset(
             "transducers", (number_channels,), dtype=str_dt
         )
-        transducer_ds[:] = signal_transducers
+        if signal_transducers:
+            transducer_ds[:] = signal_transducers
+        # ??? is ok to leave this without initialization
 
         prefilter_ds = record.create_dataset(
             "prefilters", (number_channels,), dtype=str_dt
         )
-        prefilter_ds[:] = signal_prefilters
+        if signal_prefilters:
+            prefilter_ds[:] = signal_prefilters
+        # ??? is ok to leave this without initialization
 
         if bits_per_sample == "auto":
             if all(signal_digital_maxs < 2 ** 15) and all(
