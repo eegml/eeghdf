@@ -19,6 +19,7 @@ Project to develop a easily accessible format for storing EEG in a way that is e
 
 ## Simple install for developers
 - change to the desired python environment
+- make sure you have git and git-lfs installed
 ```
 git clone https://github.com/eegml/eeghdf.git 
 pip install -e eeghdf
