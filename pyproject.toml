@@ -1,0 +1,15 @@
+[build-system]
+requires = ["flit_core >=3.2,<4", "future"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "eeghdf"
+authors = [{name = "Chris Lee-Messer", email = "chris@lee-messer.net"}]
+readme = "README.md"
+dynamic = ["version", "description"]
+classifiers = ["Intended Audience :: Science/Research","License :: OSI Approved :: BSD License", "Topic :: Scientific/Engineering :: Medical Science Apps.",  "Development Status :: 4 - Beta"]
+
+dependencies = ["numpy", "h5py", "pandas", "future"]
+
+[project.urls]
+Home = "https://github.com/eegml/eeghdf"
