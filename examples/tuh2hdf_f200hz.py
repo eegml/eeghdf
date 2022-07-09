@@ -37,7 +37,7 @@ from builtins import range  # range and switch xrange -> range
 
 import edflib
 import eeghdf
-import scikits.samplerate as sk_samplerate
+import scikits.samplerate as sk_samplerate # see https://github.com/cleemesser/samplerate
 
 
 # really need to check the original data type and then save as that datatype along with the necessary conversion factors
