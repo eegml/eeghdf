@@ -5,10 +5,28 @@ import setuptools  # required to allow for use of python setup.py develop, may a
 
 from distutils.core import setup
 
+def extract_version():
+    """transition function as try filt which defines version
+    in eeghdf/__init__.py"""
+    import re
+    
+    lines = open("eeghdf/__init__.py").readlines()
+    flines = [ll for ll in lines if  ll.startswith("__version__")]
+    if len(flines)==1:
+        rg2 = re.compile(r'''__version__\s*=\s*["'](?P<version>[a-zA-Z0-9_.]+)["']''')
+        s = flines[0]
+        m = rg2.match(s)
+        if m:
+            return m.group('version')
+
+    raise Exception("__version__ not defined in eeghdf/__init__.py")
+
+
+    
 
 setup(
     name="eeghdf",
-    version="0.2.1",
+    version=extract_version(),
     description="""eeg storage in hdf5 + related functions""",
     author="""Chris Lee-Messer""",
     url="https://github.com/eegml/eeghdf",

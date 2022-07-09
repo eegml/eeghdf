@@ -10,4 +10,4 @@ from __future__ import absolute_import
 from .writer import EEGHDFWriter
 from .reader import *
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"
