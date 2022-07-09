@@ -8,7 +8,7 @@ from distutils.core import setup
 
 setup(
     name="eeghdf",
-    version="0.1",
+    version="0.2",
     description="""eeg storage in hdf5 + related functions""",
     author="""Chris Lee-Messer""",
     url="https://github.com/eegml/eeghdf",
