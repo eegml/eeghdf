@@ -30,25 +30,22 @@ Additional goals/features:
 - look to add field for montages and electrode geometry
 - "extension" group
 
+## installation
+```
+pip install eeghdf
+```
 
-
-## Simple install for developers
-- change to the desired python environment
+#### Simple install for developers
+This assumes you want to make changes to the eeghdf code.
+- change to the desired python virtual environment
 - make sure you have git and git-lfs installed
 ```
 git clone https://github.com/eegml/eeghdf.git 
-pip install -e eeghdf
-```
-- or if you just want to install as a requirement into a virtual env. Put this into your requirements.txt. The repo will be cloned into ./src/eeghdf and installed
-```
--e git+https://github.com/eegml/eeghdf#egg=eeghdf
+cd eeghdf
 
-```
-
-For oldstyle setuptools install
-```
 python setup-dev.py develop
 ```
+
 
 ### Re-sampling 
 There are many ways to resample signals. In my examples I used an approach based upon libsamplerate because it seemed to give accurate results. Depending on your
@@ -68,8 +65,9 @@ Ultimately I will move the resampling code out of this repo. Maybe put it in eeg
 - [X] initial scripts to convert edf to eeghdf and floating point hdf5
 - [x] code to subsample and convert edf -> eeghdf
 - [ ] code to write back to edf
-- [ ] more visualization code -> push to eegvis
+- [x] more visualization code -> push to eegvis
 - [x] add convenience interface to phys_signal with automagic conversion from digital->phys units
+      - should this use a subclass of numpy?
 - [ ] add study admin code to record info (do not seem to include this now, e.g. EEG No like V17-105)
 - [ ] code to clip and create subfiles
   - [ ] allow patient info to propagate
