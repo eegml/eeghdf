@@ -11,5 +11,10 @@ classifiers = ["Intended Audience :: Science/Research","License :: OSI Approved 
 
 dependencies = ["numpy", "h5py", "pandas", "future"]
 
+[project.optional-dependencies]
+mne = ["mne>=1.0"]
+test = ["pytest"]
+# resampling
+
 [project.urls]
 Home = "https://github.com/eegml/eeghdf"
