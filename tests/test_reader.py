@@ -12,8 +12,8 @@ try:
 except NameError:
     ROOT = path.curdir
 
-ARFILE1 = path.join(ROOT,r"../data/absence_epilepsy.eeghdf")
-ARFILE2 = path.join(ROOT,r"../data/spasms.eeghdf")
+ARFILE1 = path.join(ROOT,r"../data/absence_epilepsy.eeg.h5")
+ARFILE2 = path.join(ROOT,r"../data/spasms.eeg.h5")
 EEGFILE1 = path.normpath(ARFILE1)
 EEGFILE2 = path.normpath(ARFILE2)
 

@@ -15,7 +15,7 @@ import mne
 def sechdf1020_to_mne(hf):
     """@hf is an eeghdf Eeghdf object opened on a file
     from the stanford EEG corpus for a scalp EEG using
-    the 10-20 system"""
+    the 10-20 system. It won't be correct montage for iEEGs"""
 
     # start to make this into a function
     # find useful_channels
@@ -70,8 +70,9 @@ def sechdf1020_to_mne(hf):
 
     # info - mne.create_info(unum_uchans, hf.sample_frequency)
     info = mne.create_info(
-        uchan_names, hf.sample_frequency, channel_types, montage="standard_1020"
+        uchan_names, hf.sample_frequency, channel_types, # montage="standard_1020"
     )
+    ten_twenty_montage = mne.channels.make_standard_montage("standard_1020")
     print(info)
 
     # montage = 'standard_1010' # might work
@@ -92,7 +93,7 @@ def sechdf1020_to_mne(hf):
     # TODO: transfer recording and patient details. API ref
     # url: https://martinos.org/mne/dev/generated/mne.Info.html#mne.Info
     # TODO: next need to figure out how to add the events/annotations
-    info["custom_ref_applied"] = True  # for SEC this is true
+    # info["custom_ref_applied"] = True  # for SEC this is true
 
     # events are a list of dict events list of dict:
 
@@ -132,6 +133,7 @@ def sechdf1020_to_mne(hf):
     # Subject sex (0=unknown, 1=male, 2=female).
 
     customraw = mne.io.RawArray(data, info)
+    customraw.set_montage(ten_twenty_montage)
     return customraw, info, useful_channels
 
 
@@ -150,6 +152,7 @@ def hdf2mne(hf):
     This just dumps all the data in as misc channels and expects the user to
     figure out which channels types are which
 
+    you can use customraw.set_montage(<montage>) if you know the montage used
     """
 
     # start to make this into a function
@@ -226,10 +229,11 @@ def hdf2mne(hf):
         print(ii, name, channel_types[ii])
 
     # finally remove the prefix 'EEG' from the label names
-
+    # mne.create_info no longer includes montage argument
     info = mne.create_info(
-        uchan_names, hf.sample_frequency, channel_types, montage="standard_1020"
+        uchan_names, hf.sample_frequency, channel_types,
     )
+
     print(info)
 
     # montage = 'standard_1010' # might work
@@ -250,8 +254,9 @@ def hdf2mne(hf):
     # TODO: transfer recording and patient details. API ref
     # url: https://martinos.org/mne/dev/generated/mne.Info.html#mne.Info
     # TODO: next need to figure out how to add the events/annotations
-    info["custom_ref_applied"] = True  # for SEC this is true
-
+    #info["custom_ref_applied"] = True  # for SEC this is true
+    # use inst.set_eeg_reference() instead.
+    
     # events are a list of dict events list of dict:
 
     # channels : list of int
@@ -290,4 +295,5 @@ def hdf2mne(hf):
     # Subject sex (0=unknown, 1=male, 2=female).
 
     customraw = mne.io.RawArray(data, info)
+
     return customraw, info, useful_channels

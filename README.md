@@ -17,6 +17,17 @@ Project to develop a easily accessible format for storing EEG in a way that is e
 - look to add field for montages and electrode geometry
 - "extension" group
 
+### Features
+Features derived from hdf5 format:
+- hdf5 offers reliable, checksummed and compressed storage of digital EEG
+- numpy like interface to data without requiring the whole file to be loaded in memory
+- direct streaming from S3 buckets via the rcos3 driver
+
+Additional goals/features:
+- developing a set of tools to visualize and analyze EEG based upon this format, visualization
+- easy convertion to mne-python raw format 
+
+
 ## Simple install for developers
 - change to the desired python environment
 - make sure you have git and git-lfs installed
@@ -39,6 +50,9 @@ Installation will vary but on ubuntu 18.04 I did:
 sudo apt install libsamplerate-dev
 pip install git+https://github.com/cournape/samplerate/#egg=samplerate
 ```
+
+Ultimately I will move the resampling code out of this repo. Maybe put it in eegml-signal
+
 ## To Do
 
 - [x] code to write file, target initial release version is 1000
