@@ -18,7 +18,7 @@ import pandas as pd  # maybe shouldn't require pandas in basic file so look to e
 
 def record_edf_annotations_to_lists(raw_edf_annotations):
     """
-    usage: 
+    usage:
 
     >>> rec = hdf['record-0']
     >>> texts, times_100ns = record_edf_annotations_to_lists(rec['edf_annotations'])
@@ -45,8 +45,10 @@ def record_edf_annotations_to_sec_items(raw_edf_annotations):
     items = zip(antexts, starts_sec_arr)
     return items
 
+
 def electrode_label_to_shortcut(label):
     return signal_label_to_shortcut(label)
+
 
 def signal_label_to_shortcut(label):
     """Purpose of this is to clear out cruft used in standard nomenclature (EDF standard text)
@@ -65,22 +67,20 @@ def signal_label_to_shortcut(label):
     l = l.replace("-Ref", "")
     l = l.replace("-REF", "")
     l = l.replace("-ref", "")
-    
+
     l = l.replace("ECG", "")
     l = l.strip()
     return l
 
+
 def test_signal_label_to_shortcut(in_out=None):
     if not in_out:
-        in_out = [
-            ("EEG Fp1-Ref", "Fp1"),
-            ("EEG T3", "T3"),
-            ("C3 ", "C3")
-            ]
-    for xx,yy in in_out:
+        in_out = [("EEG Fp1-Ref", "Fp1"), ("EEG T3", "T3"), ("C3 ", "C3")]
+    for xx, yy in in_out:
         res = signal_label_to_shortcut(xx)
         print(res)
         assert yy == res
+
 
 # so given a hdf
 # signals(integers) -> optional-uV-conversion -> optional montage conversion (???scope of this project)
@@ -99,7 +99,7 @@ class PhysSignal:
     data is hdf dataset of sampled data(or numpy array) to transform
     First implement the zero offset version
 
-    $Y = S2U [X + Offset]$ 
+    $Y = S2U [X + Offset]$
 
     This is meant to be accessed via the bracket operator
     phys_signals[a,b]
@@ -284,10 +284,10 @@ class PhysSignalZeroOffset:
         return self.data.shape
 
 
-class Eeghdf:
+class Eeghdf_ver1:
     __version__ = 1
 
-    def __init__(self, fn, mode="r"):
+    def __init__(self, fn, mode="r", vfd: str = "", vfd_kwargs: dict = {}):
         """
         version 1: assumes only one record-0 waveform
         but may allow for record_list in future
@@ -298,9 +298,29 @@ class Eeghdf:
         w create file, truncate if exists
         w- or x create file, fail if exists
         a read/write if exists, create otherwise
+
+        @vfd specifies an hdf5 virtual file driver
+        @vfd_args is a dictionary specifying the arguments to use with the vfd
         """
         self.file_name = fn
-        self.hdf = h5py.File(fn, mode=mode)  # readonly by default
+        if not vfd:
+            self.hdf = h5py.File(fn, mode=mode)  # readonly by default
+        else:
+            if vfd == "ros3":
+                bucket_name = vfd_kwargs['bucket_name']
+                s3_url_endpoint = vfd_kwargs['s3_url_endpoint']
+                h5_url = rf"{s3_url_endpoint}/{bucket_name}/{fn}"
+                region = vfd_kwargs["region"]
+                secret_id = vfd_kwargs["secret_id"]
+                secret_key = vfd_kwargs["secret_key"]
+
+                self.hdf = h5py.File(
+                    h5_url,
+                    driver="ros3",
+                    aws_region=region.encode("utf-8"),
+                    secret_id=secret_id.encode("utf-8"),
+                    secret_key=secret_key.encode("utf-8"),
+                )
 
         # waveform record info
         self.rec0 = self.hdf["record-0"]
@@ -312,11 +332,11 @@ class Eeghdf:
         self.rawsignals = rec0["signals"]
         labels_bytes = rec0["signal_labels"]
         self.signal_labels = [str(s, "ascii") for s in labels_bytes]
-        self.electrode_labels = self.signal_labels # TODO: mark this as deprecated
+        self.electrode_labels = self.signal_labels  # TODO: mark this as deprecated
 
         self._SAMPLE_TO_UNITS = (
-            False
-        )  # indicate if have calculated conversion factors flag
+            False  # indicate if have calculated conversion factors flag
+        )
 
         # read annotations and format them for easy use
         annot = rec0["edf_annotations"]  # but these are in a funny 3 array format
@@ -387,7 +407,7 @@ class Eeghdf:
         if self._annotations_df is None:
             starts100ns = self._annotation_start100ns
             start_time_sec = [
-                xx / 10 ** 7 for xx in starts100ns  # 10**7 * 100ns = 1sec
+                xx / 10**7 for xx in starts100ns  # 10**7 * 100ns = 1sec
             ]
             df = pd.DataFrame(data=self._annotation_text, columns=["text"])
             df["starts_sec"] = start_time_sec
@@ -400,15 +420,15 @@ class Eeghdf:
     @property
     def edf_annotations_sec(self):
 
-        """compute this on demand: 
-        return a list of tuples 
+        """compute this on demand:
+        return a list of tuples
         [(start, duration, description)...]
         units in floating point seconds
         ? might want sample numbers"""
 
         starts100ns = self._annotation_start100ns
         duration_sec = self._annotation_durations_sec
-        start_time_sec = [xx / 10 ** 7 for xx in starts100ns]  # 10**7 * 100ns = 1sec
+        start_time_sec = [xx / 10**7 for xx in starts100ns]  # 10**7 * 100ns = 1sec
         antext = self._annotation_text
 
         return zip(start_time_sec, duration_sec, antext)
@@ -486,7 +506,7 @@ class Eeghdf:
     #    self.# record['signal_physical_maxs'] = signal_physical_maxs
     # record['signal_digital_mins'] = signal_digital_mins
 
-    ### TODO: add deprecation warning to elabel and questin use of shortcut 
+    ### TODO: add deprecation warning to elabel and questin use of shortcut
     @property
     def shortcut_elabels(self):
         """These labels are used in montages and other displays
@@ -500,17 +520,18 @@ class Eeghdf:
         can further customize by adding to electrode_label_to_shortcut
         """
         return [signal_label_to_shortcut(ss) for ss in self.signal_labels]
-    
 
-class Eeghdf_ver2(Eeghdf):
-    __version__ = 2
+
+class Eeghdf_ver2(Eeghdf_ver1):
     """
     version 2 supports studyadmincode in record-0 attributes
     but still presumes only one record block ('record-0')
     """
 
-    def __init__(self, fn, mode="r"):
-        super().__init__(fn, mode)
+    __version__ = 2
+
+    def __init__(self, fn, mode="r", vfd: str = "", vfd_kwargs: dict = {}):
+        super().__init__(fn, mode, vfd=vfd, vfd_kwargs=vfd_kwargs)
         rec0 = self.rec0
         if "studyadmincode" in rec0.attrs:
             self.studyadmincode = rec0.attrs["studyadmincode"]
@@ -520,3 +541,6 @@ class Eeghdf_ver2(Eeghdf):
             )
 
             self.studyadmincode = ""
+
+
+Eeghdf = Eeghdf_ver2
