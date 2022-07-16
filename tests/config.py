@@ -1,4 +1,8 @@
+"""
+place to put configuration settings for the tests
 
+can put secrets in .secrets.toml in the project root
+"""
 from dynaconf import Dynaconf
 
 settings = Dynaconf(
