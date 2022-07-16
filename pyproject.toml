@@ -6,15 +6,17 @@ build-backend = "flit_core.buildapi"
 name = "eeghdf"
 authors = [{name = "Chris Lee-Messer", email = "chris@lee-messer.net"}]
 readme = "README.md"
-dynamic = ["version", "description"]
+requires-python = ">=3.7"
+dynamic = ["version", "description"] # this means will be extracted from module docstring
+
 classifiers = ["Intended Audience :: Science/Research","License :: OSI Approved :: BSD License", "Topic :: Scientific/Engineering :: Medical Science Apps.",  "Development Status :: 4 - Beta"]
 
 dependencies = ["numpy", "h5py", "pandas", "future"]
 
 [project.optional-dependencies]
 mne = ["mne>=1.0"]
-test = ["pytest"]
-# resampling
+test = ["pytest", "dynaconf>=3.0"]
+# removing resampling
 
 [project.urls]
 Home = "https://github.com/eegml/eeghdf"
