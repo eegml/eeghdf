@@ -3,9 +3,6 @@ import h5py
 import os.path as osp
 import eeghdf
 
-print(settings.to_dict())
-
-
 s3_url_endpoint = settings.GCP_S3_COMPAT_STORAGE_ENDPOINT_URL
 bucket_name = settings.BUCKET_NAME
 file_name = r"absence_epilepsy.eeg.h5"
