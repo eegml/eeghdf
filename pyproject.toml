@@ -16,7 +16,7 @@ dependencies = ["numpy", "h5py", "pandas", "future"]
 [project.optional-dependencies]
 mne = ["mne>=1.0"]
 test = ["pytest", "dynaconf>=3.0"]
-# resampling
+# removing resampling
 
 [project.urls]
 Home = "https://github.com/eegml/eeghdf"
