@@ -13,7 +13,7 @@ dependencies = ["numpy", "h5py", "pandas", "future"]
 
 [project.optional-dependencies]
 mne = ["mne>=1.0"]
-test = ["pytest"]
+test = ["pytest", "dynaconf>=3.0"]
 # resampling
 
 [project.urls]
