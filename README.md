@@ -46,31 +46,3 @@ cd eeghdf
 python setup-dev.py develop
 ```
 
-
-### Re-sampling 
-There are many ways to resample signals. In my examples I used an approach based upon libsamplerate because it seemed to give accurate results. Depending on your
-platform there are many options. Recently I have been suing pytorch based tools a lot, torchaudio has resamplinge tools and librosa is looks very impressive.
-
-Installation will vary but on ubuntu 18.04 I did:
-```
-sudo apt install libsamplerate-dev
-pip install git+https://github.com/cournape/samplerate/#egg=samplerate
-```
-
-Ultimately I will move the resampling code out of this repo. Maybe put it in eegml-signal
-
-## To Do
-
-- [x] code to write file, target initial release version is 1000
-- [X] initial scripts to convert edf to eeghdf and floating point hdf5
-- [x] code to subsample and convert edf -> eeghdf
-- [ ] code to write back to edf
-- [x] more visualization code -> push to eegvis
-- [x] add convenience interface to phys_signal with automagic conversion from digital->phys units
-      - should this use a subclass of numpy?
-- [ ] add study admin code to record info (do not seem to include this now, e.g. EEG No like V17-105)
-- [ ] code to clip and create subfiles
-  - [ ] allow patient info to propagate
-  - [ ] hash list/tree of history of file so that can track provenance of waveforms if desired
-  - [ ] clip and maintain correct (relative) times
-- [ ] consider how to handle derived records: for example the downsampled float32 records "frecord200Hz" 
