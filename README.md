@@ -22,13 +22,15 @@ Additional goals/features:
   - simplier than neo, but may need more of neo's structures as use grows
 - [ONE format](https://int-brain-lab.github.io/ONE/one_reference.html)
 - compare with [MNE](http://martinos.org/mne/stable/index.html) fif format of mne project to evolve
-
+- see also similar ideas to HDF5 in [zarr](https://zarr.readthedocs.io/en/stable/) and the [N5 format](https://github.com/saalfeldlab/n5) which can use HDF5 as a backend.
 
 ##### future goals
 - look to support multiple records and different sampling rates
 - look to add fields for clinical report text
 - look to add field for montages and electrode geometry
 - "extension" group
+
+- add further cloud support examples, perhaps using [fsspec](https://github.com/fsspec/filesystem_spec) which provides a python file interface to many storage backends.
 
 ## installation
 ```
