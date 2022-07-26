@@ -1,9 +1,15 @@
+import pathlib
+import numpy as np
+from eeghdf.reader import Eeghdf
 from testconfig import settings
 import pytest
 import h5py
 import os.path as osp
 import eeghdf
 
+ROOTDIR = pathlib.Path(__file__).parent.parent
+DATADIR = ROOTDIR / "data"
+# print(f"{ROOTDIR=}, {DATADIR=}")
 NOT_CONFIGURED = True
 try:
     s3_url_endpoint = settings.S3_COMPAT_STORAGE_ENDPOINT_URL
@@ -16,7 +22,6 @@ try:
     region = settings.S3_REGION
     NOT_CONFIGURED = False
 
-
     vfdkwargs = dict(
         s3_bucket_name=bucket_name,
         s3_url_endpoint=s3_url_endpoint,
@@ -26,7 +31,9 @@ try:
     )
 
 except:
-    print("S3 not configured, likely need to set up an S3 bucket and create .secrets.toml")
+    print(
+        "S3 not configured, likely need to set up an S3 bucket and create .secrets.toml"
+    )
     pass
 
 
@@ -36,7 +43,7 @@ def test_basic_s3():
     """
     if NOT_CONFIGURED:
         pytest.skip("S3 not configured")
-        
+
     h5 = h5py.File(
         full_s3_url,
         driver="ros3",
@@ -56,9 +63,18 @@ def test_s3_direct_vfd():
         pytest.skip("S3 not configured")
 
     hf = eeghdf.Eeghdf(file_name, vfd="ros3", vfd_kwargs=vfdkwargs)
+    horig = eeghdf.Eeghdf(DATADIR / file_name)
 
-    print(hf.rawsignals[5, 0:10])
-    print(hf.phys_signals[0, 0:10])
+    A1 = hf.rawsignals[5, 5000:5010]
+    B1 = horig.rawsignals[5, 5000:5010]
+    A2 = hf.phys_signals[0, 0:10]
+    B2 = hf.phys_signals[0, 0:10]
+    # print(f"{A1=}")
+    # print(f"{A2=}")
+    # print(f"{B1=}")
+    # print(f"{B2=}")
+    assert np.array_equal(A1, B1)
+    assert np.array_equal(A2, B2)
 
 
 # put it outside the function so I can write several tests using same session
@@ -72,9 +88,16 @@ if NOT_CONFIGURED == False:
         region=region,
     )
 
+
 def test_s3_session():
     if NOT_CONFIGURED:
         pytest.skip("S3 not configured")
 
     f = session.get(file_name)
-    print(f.phys_signals[10,1000:1020])
+    forig = eeghdf.Eeghdf(DATADIR / file_name)
+    A = f.phys_signals[10:12, 3000:3020]
+    B = forig.phys_signals[10:12, 3000:3020]
+    # print(f"{A=}")
+    # print(f"{B=}")
+    # this should be the same array so don't need to use np.allclose(A,B)
+    assert np.array_equal(A, B)
