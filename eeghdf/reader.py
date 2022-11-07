@@ -548,8 +548,8 @@ class Eeghdf_ver2(Eeghdf_ver1):
         if "studyadmincode" in rec0.attrs:
             self.studyadmincode = rec0.attrs["studyadmincode"]
         else:  # fall back if not defined, though it should have been and raise an warning?
-            logging.warning(
-                "record-0.attrs['studyadmincode'] not defined, likely opened a version 1 file"
+            logging.debug(
+                "record-0.attrs['studyadmincode'] not defined, likely opened a version 1 file, no intervention necessary"
             )
 
             self.studyadmincode = ""
