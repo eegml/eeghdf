@@ -1,4 +1,4 @@
-# eeghdf protocol
+# eeghdf data layout in hdf5 file
 
 Patient
 -------
@@ -10,7 +10,7 @@ gestational_age_at_birth_days :  float=-1.0  : GA is number of days since last m
 born_premature : str="unknown" : enum  {"true" "false" "unknown"}
 patient_addition : str="" : adopted from EDF for anything you want to add
 
-
+Records - group
 
 Record
 see ```eeghdf.writer.EEGHDFWriter.create_record_block``
