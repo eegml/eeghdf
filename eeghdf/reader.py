@@ -283,18 +283,32 @@ class PhysSignalZeroOffset:
     def shape(self):
         return self.data.shape
 
+
 class S3_session:
     """capture the idea of a session which holds state for a set of eeg.h5 files"""
-    def __init__(self, s3_bucket_name:str, s3_url_endpoint: str, region:str, access_key_id:str = "", secret_access_key: str=""):
-        self.vfd_driver = 'ros3'
-        self._vfd_kwargs = {'s3_bucket_name': s3_bucket_name, 's3_url_endpoint': s3_url_endpoint, 'region':region,
-                            'access_key_id': access_key_id, 'secret_access_key': secret_access_key}
-        
+
+    def __init__(
+        self,
+        s3_bucket_name: str,
+        s3_url_endpoint: str,
+        region: str,
+        access_key_id: str = "",
+        secret_access_key: str = "",
+    ):
+        self.vfd_driver = "ros3"
+        self._vfd_kwargs = {
+            "s3_bucket_name": s3_bucket_name,
+            "s3_url_endpoint": s3_url_endpoint,
+            "region": region,
+            "access_key_id": access_key_id,
+            "secret_access_key": secret_access_key,
+        }
+
     def get(self, file_name):
         """return (read-only) eeg-hdf5 file with file_name from the session bucket"""
         return Eeghdf(file_name, vfd=self.vfd_driver, vfd_kwargs=self._vfd_kwargs)
-        
-        
+
+
 class Eeghdf_ver1:
     __version__ = 1
 
@@ -319,8 +333,8 @@ class Eeghdf_ver1:
         else:
             if vfd == "ros3":
                 # unpack the vfd_kwargs
-                s3_bucket_name = vfd_kwargs['s3_bucket_name']
-                s3_url_endpoint = vfd_kwargs['s3_url_endpoint']
+                s3_bucket_name = vfd_kwargs["s3_bucket_name"]
+                s3_url_endpoint = vfd_kwargs["s3_url_endpoint"]
                 h5_url = rf"{s3_url_endpoint}/{s3_bucket_name}/{fn}"
                 region = vfd_kwargs["region"]
                 access_key_id = vfd_kwargs["access_key_id"]

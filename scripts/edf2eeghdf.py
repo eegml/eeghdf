@@ -37,15 +37,16 @@ from builtins import range  # range and switch xrange -> range
 # from past.builtins import xrange # later, move to from builtins import
 
 
-import edflib # have several choices for reading edf, this is my library version 0.76 and 0.8 work
-import eeghdf 
+import edflib  # have several choices for reading edf, this is my library version 0.76 and 0.8 work
+import eeghdf
 
-#debug = print
+# debug = print
 def debug(*args):
     pass
 
+
 DEFAULT_EXT = ".eeg.h5"  # default ending for files in the format defined by eeghdf
-DEFAULT_BIRTHDATE = datetime.date(1900,1,1)
+DEFAULT_BIRTHDATE = datetime.date(1900, 1, 1)
 
 # really need to check the original data type and then save as that datatype along with the necessary conversion factors
 # so can convert voltages on own
@@ -245,9 +246,8 @@ LPCH_COMMON_1020_LABELS_to_EDF_STANDARD = {
     "X4": "X4-REF",
     "X5": "X5-REF",
     "X6": "X6-REF",
-    "X7": "X7-REF"
+    "X7": "X7-REF",
 }
-
 
 
 def normalize_lpch_signal_label(label):
@@ -511,7 +511,7 @@ def create_simple_anonymous_header(header):
     if hdr["patientcode"]:
         hdr["patientcode"] = "00000000"
     dob = hdr["birthdate_date"]
-    if not hdr["birthdate_date"]: # 0-len string
+    if not hdr["birthdate_date"]:  # 0-len string
         age_time_offset = datetime.timedelta(seconds=0)
     else:
         age_time_offset = hdr["birthdate_date"] - DEFAULT_BIRTHDATE
@@ -528,7 +528,7 @@ def create_simple_anonymous_header(header):
 
     hdr["admincode"] = ""
     hdr["technician"] = ""
-    hdr['patient_additional'] = ""
+    hdr["patient_additional"] = ""
     debug(f"anonymized hdr:")
     debug(pprint.pformat(hdr))
     return hdr
@@ -591,7 +591,7 @@ def edf2hdf(fn, outfn="", hdf_dir="", anonymize=False):
     """
     convert an edf file to hdf5 using fairly straightforward mapping
     return True if successful
-    
+
     by default (if outfn and hdf_dir are not set)
        the output is put in the same directory as the input file
     you can also specify the output file (full path) by setting outfn directly
@@ -640,8 +640,8 @@ def edf2hdf(fn, outfn="", hdf_dir="", anonymize=False):
                 ef.starttime_second,
             ),
             "starttime_subsecond_offset": ef.starttime_subsecond,
-            "birthdate_date": ef.birthdate_date, # str
-            "patient_additional": ef.patient_additional, # str
+            "birthdate_date": ef.birthdate_date,  # str
+            "patient_additional": ef.patient_additional,  # str
             "admincode": ef.admincode,  # usually the study eg. C13-100
             "technician": ef.technician,
             "equipment": ef.equipment,

@@ -211,12 +211,12 @@ class EEGHDFWriter(object):
         # ??? is ok to leave this without initialization
 
         if bits_per_sample == "auto":
-            if all(signal_digital_maxs < 2 ** 15) and all(
-                signal_digital_mins >= -2 ** 15
+            if all(signal_digital_maxs < 2**15) and all(
+                signal_digital_mins >= -(2**15)
             ):
                 bits_per_sample = 16  # EDF
-            elif all(signal_digital_maxs < 2 ** 23) and all(
-                signal_digital_mins >= -2 ** 23
+            elif all(signal_digital_maxs < 2**23) and all(
+                signal_digital_mins >= -(2**23)
             ):
                 bits_per_sample = 24  # BDF 2^23 = 8388608 + 1 bit for sign
         record.attrs["bits_per_sample"] = bits_per_sample
@@ -280,8 +280,8 @@ class EEGHDFWriter(object):
     ):
 
         """
-        @signals_mask is a list or array which evalutes to True or False depending on if a signal should be inlcuded in the 
-        eeghdf file 
+        @signals_mask is a list or array which evalutes to True or False depending on if a signal should be inlcuded in the
+        eeghdf file
         """
 
         orig_num_signals = len(signal_labels)  # original number of signals
@@ -469,7 +469,7 @@ class EEGHDFWriter(object):
 
         so the block_iterator needs to yield:
           a @buf buffer which holds the short bit of data
-          a current position @mark -- which tells us 
+          a current position @mark -- which tells us
            and number @num of entries to write
         """
         record = record_block  # hdf group
@@ -511,12 +511,12 @@ def test_EEGHDF_patient_creation():
     hf.hdf.close()
     del hf
     comparison = [
-        (u"patientname", "Smith, Jill"),
-        (u"gender", "female"),
-        (u"birthdate", "2005-11-23"),
-        (u"patient_additional", ""),
-        (u"gestatational_age_at_birth_days", 280),
-        (u"born_premature", "false"),
+        ("patientname", "Smith, Jill"),
+        ("gender", "female"),
+        ("birthdate", "2005-11-23"),
+        ("patient_additional", ""),
+        ("gestatational_age_at_birth_days", 280),
+        ("born_premature", "false"),
     ]
 
     nhf = h5py.File(TEST_EEGHDF_FILENAME, "r+")
