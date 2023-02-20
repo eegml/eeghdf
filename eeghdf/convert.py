@@ -38,7 +38,7 @@ def sechdf1020_to_mne(hf):
 
     print(list(zip(useful_channels, useful_channel_labels)))
 
-    num_uchans = len(useful_channels)
+    # num_uchans = len(useful_channels)
 
     def label2type(name):
         """lots of assumptions to use this as name is already limited"""
@@ -178,7 +178,7 @@ def hdf2mne(hf):
 
     print(list(zip(useful_channels, useful_channel_labels)))
 
-    num_uchans = len(useful_channels)
+    # num_uchans = len(useful_channels)
 
     def label2type(name):
         """lots of assumptions to use this as name is already limited

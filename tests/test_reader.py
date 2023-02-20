@@ -54,7 +54,7 @@ transform = S * sca[:,np.newaxis]
 #%%  begin tests
 def test_reader_open():
     eeg = eeghdf.Eeghdf(EEGFILE1)
-    assert eeg != None
+    assert eeg is not None
 
 
 def test_reader_duration():
@@ -129,7 +129,6 @@ def test_phys_signals_test_multi_dimslice():
 def test_phys_signals_test_slice_int():
     '''test PhysicalSignalZeroOffset (slice, int)
     indexing for zero-offset physSignal object'''
-    x = 1420
 
     res = eeg.phys_signals[1:3, 5] 
     print('test_phys_signals_test_slice_int: res.shape:', res.shape)
@@ -153,7 +152,6 @@ def test_phys_signals_test_int_slice():
 
 def test_phys_signals_test_fancy_channel_index():
 
-    chsel_3 = [1,5,7]
     chsel_4 = [1,3,5,7]
     target = np.array([[-139.35546126, -140.23436747, -136.32811768, -131.15233671, -125.29296202],
                        [   2.34374987,    4.00390603,    7.91015583,   12.89062431, 14.06249924],
@@ -194,7 +192,7 @@ def test_phys_signals_indexing():
 def test_eeghdf_ver2():
     # open the old file version
     eeg = eeghdf.Eeghdf_ver2(EEGFILE1)
-    assert eeg != None
+    assert eeg is not None
     print(eeg.hdf.attrs['EEGHDFversion'])
 
 
@@ -208,7 +206,7 @@ def test_all_indexing():
     
 def test_indexing_unconstrained():
     for ss in indexing2D_tests_unconstrained:
-        compare = S[ss] # has limited numbers
+        S[ss] # has limited numbers
         res = eeg.phys_signals[ss]
         assert res.shape[0] == eeg.number_channels
                                                                 

@@ -8,6 +8,7 @@ Features include:
 """
 from __future__ import absolute_import
 
+# these are here for from eeghdf import *
 from .writer import EEGHDFWriter
 from .reader import *
 

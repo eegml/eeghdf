@@ -2,7 +2,6 @@
 from __future__ import division, print_function, absolute_import
 
 # goal: support python 2.7 -> python 3.5+
-import future
 from future.utils import iteritems
 from builtins import range
 
@@ -28,14 +27,21 @@ neo as well as MNE's format FIF are priorities.
 
 adding information such as electrode geometries (cf. FIF) is considered for the future
 
-Because all my EEGs appear to be uniformly sampled -- all channels sampled at the same frequency. My recording blocks will assume that they are all the same. Note that edf allows for different sampling rates.
+Because all my EEGs appear to be uniformly sampled -- all channels sampled at the
+same frequency. My recording blocks will assume that they are all the same. Note
+that edf allows for different sampling rates.
 
-If this occurs, I will raise an error --- maybe a simple way in the future to deal with this would be to put the different sampled rates in a separate Record block.
+If this occurs, I will raise an error --- maybe a simple way in the future to
+deal with this would be to put the different sampled rates in a separate Record
+block.
 
-Each Record block is this a uniformly sampled set of datapoints with the same sampling frequency. The eeg sample data is stored in HDF5 dataset which is essentially a rectangular array.
+Each Record block is this a uniformly sampled set of datapoints with the same
+sampling frequency. The eeg sample data is stored in HDF5 dataset which is
+essentially a rectangular array.
 
-For the future, I will be watching NWB - neurodata without borders - this specifies an hdf5 schema for 
-neurophysiology data which is extensible. I'll also watch for other projects.
+For the future, I will be watching NWB - neurodata without borders - this
+specifies an hdf5 schema for neurophysiology data which is extensible. I'll also
+watch for other projects.
 
 One big question going forward is how to store strings -
 - option 1: everything is ascii, straighforward but ignores a lot of other possible names
@@ -280,8 +286,8 @@ class EEGHDFWriter(object):
     ):
 
         """
-        @signals_mask is a list or array which evalutes to True or False depending on if a signal should be inlcuded in the
-        eeghdf file
+        @signals_mask is a list or array which evalutes to True or False
+        depending on if a signal should be inlcuded in the eeghdf file
         """
 
         orig_num_signals = len(signal_labels)  # original number of signals
@@ -381,7 +387,7 @@ class EEGHDFWriter(object):
                 num_samples_per_channel=num_samples_per_channel,
                 sample_frequency=sample_frequency,
                 signal_labels=signal_labels,
-                signal_physical_mins=signal_physical_min,
+                signal_physical_mins=signal_physical_mins,
                 signal_physical_maxs=signal_physical_maxs,
                 signal_digital_mins=signal_digital_mins,
                 signal_digital_maxs=signal_digital_maxs,

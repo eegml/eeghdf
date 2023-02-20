@@ -51,7 +51,7 @@ def electrode_label_to_shortcut(label):
 
 
 def signal_label_to_shortcut(label):
-    """Purpose of this is to clear out cruft used in standard nomenclature (EDF standard text)
+    """Purpose of this is to clear out "cruft" used in standard nomenclature (EDF standard text)
     to label electrode channels so that it is possible to describe montages relatively "generically"
 
     At one point I also decided to get rid of ECG channels but I do not know why
@@ -62,15 +62,15 @@ def signal_label_to_shortcut(label):
     EEG Fp1-Ref -> Fp1
 
     """
-    l = label.replace("EEG", "")
+    lab = label.replace("EEG", "")
 
-    l = l.replace("-Ref", "")
-    l = l.replace("-REF", "")
-    l = l.replace("-ref", "")
+    lab = lab.replace("-Ref", "")
+    lab = lab.replace("-REF", "")
+    lab = lab.replace("-ref", "")
 
-    l = l.replace("ECG", "")
-    l = l.strip()
-    return l
+    lab = lab.replace("ECG", "")
+    lab = lab.strip()
+    return lab
 
 
 def test_signal_label_to_shortcut(in_out=None):
@@ -83,8 +83,9 @@ def test_signal_label_to_shortcut(in_out=None):
 
 
 # so given a hdf
-# signals(integers) -> optional-uV-conversion -> optional montage conversion (???scope of this project)
-#
+# signals(integers) -> optional-uV-conversion
+#                   -> optional montage conversion (???scope of this project)
+
 
 ## let's try a first draft to get a feel for things
 
@@ -563,7 +564,8 @@ class Eeghdf_ver2(Eeghdf_ver1):
             self.studyadmincode = rec0.attrs["studyadmincode"]
         else:  # fall back if not defined, though it should have been and raise an warning?
             logging.debug(
-                "record-0.attrs['studyadmincode'] not defined, likely opened a version 1 file, no intervention necessary"
+                "record-0.attrs['studyadmincode'] not defined, likely opened a version 1 file, "
+                "no intervention necessary"
             )
 
             self.studyadmincode = ""

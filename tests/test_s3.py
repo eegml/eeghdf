@@ -1,6 +1,5 @@
 import pathlib
 import numpy as np
-from eeghdf.reader import Eeghdf
 from testconfig import settings
 import pytest
 import h5py
@@ -79,7 +78,7 @@ def test_s3_direct_vfd():
 
 # put it outside the function so I can write several tests using same session
 
-if NOT_CONFIGURED == False:
+if NOT_CONFIGURED is False:
     session = eeghdf.S3_session(
         s3_bucket_name=bucket_name,
         s3_url_endpoint=s3_url_endpoint,
