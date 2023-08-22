@@ -504,7 +504,7 @@ def test_EEGHDF_patient_creation():
     print("EEGHDF version:", hf.hdf.attrs["EEGHDFversion"])
 
     hf.write_patient_info(
-        patientname="Smith, Jill",
+        patient_name="Smith, Jill",
         patientcode="TEST",
         gender="female",
         birthdate_isostring="2005-11-23",
