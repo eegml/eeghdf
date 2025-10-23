@@ -12,6 +12,7 @@ If it is discontinuous, it will be saved as if it was continuous !!!
 
 This version uses the edfio library instead of edflib.
 """
+
 from __future__ import (
     division,
     absolute_import,
@@ -43,12 +44,14 @@ from builtins import range  # range and switch xrange -> range
 import edfio  # Using edfio library instead of edflib
 import eeghdf
 
-#debug = print
+
+# debug = print
 def debug(*args):
     pass
 
+
 DEFAULT_EXT = ".eeg.h5"  # default ending for files in the format defined by eeghdf
-DEFAULT_BIRTHDATE = datetime.date(1900,1,1)
+DEFAULT_BIRTHDATE = datetime.date(1900, 1, 1)
 
 # really need to check the original data type and then save as that datatype along with the necessary conversion factors
 # so can convert voltages on own
@@ -248,9 +251,8 @@ LPCH_COMMON_1020_LABELS_to_EDF_STANDARD = {
     "X4": "X4-REF",
     "X5": "X5-REF",
     "X6": "X6-REF",
-    "X7": "X7-REF"
+    "X7": "X7-REF",
 }
-
 
 
 def normalize_lpch_signal_label(label):
@@ -328,11 +330,17 @@ def edf2h5_float32(fn, outfn="", hdf_dir="", anonymous=False):
     hdf.attrs["nsamples0"] = nsamples0
 
     # Patient info from edfio
-    patient.attrs["gender_b"] = edf.patient.sex if edf.patient and edf.patient.sex else ""
-    patient.attrs["patientname"] = edf.patient.name if edf.patient and edf.patient.name else ""  # PHI
+    patient.attrs["gender_b"] = (
+        edf.patient.sex if edf.patient and edf.patient.sex else ""
+    )
+    patient.attrs["patientname"] = (
+        edf.patient.name if edf.patient and edf.patient.name else ""
+    )  # PHI
 
-    debug("birthdate: %s" % (edf.patient.birthdate if edf.patient else None),
-          type(edf.patient.birthdate if edf.patient else None))
+    debug(
+        "birthdate: %s" % (edf.patient.birthdate if edf.patient else None),
+        type(edf.patient.birthdate if edf.patient else None),
+    )
     # this is already a date object in edfio
     if not (edf.patient and edf.patient.birthdate):
         debug("no birthday in this file")
@@ -380,9 +388,7 @@ def edf2h5_float32(fn, outfn="", hdf_dir="", anonymous=False):
 
     nchunks = int(nsamples0 // fs0)
     samples_per_chunk = int(fs0)
-    buf = np.zeros(
-        (nsigs, samples_per_chunk), dtype="float64"
-    )  # buffer is float64
+    buf = np.zeros((nsigs, samples_per_chunk), dtype="float64")  # buffer is float64
 
     debug("nchunks: ", nchunks, "samples_per_chunk:", samples_per_chunk)
 
@@ -390,7 +396,7 @@ def edf2h5_float32(fn, outfn="", hdf_dir="", anonymous=False):
     for ii in range(nchunks):
         for jj in range(nsigs):
             # With edfio, we can directly slice the data array
-            buf[jj] = edf.signals[jj].data[bookmark:bookmark + samples_per_chunk]
+            buf[jj] = edf.signals[jj].data[bookmark : bookmark + samples_per_chunk]
         # conversion from float64 to float32
         eegdata[:, bookmark : bookmark + samples_per_chunk] = buf
         # bookmark should be ii*fs0
@@ -400,7 +406,7 @@ def edf2h5_float32(fn, outfn="", hdf_dir="", anonymous=False):
 
     if left_over_samples > 0:
         for jj in range(nsigs):
-            buf[jj] = edf.signals[jj].data[bookmark:bookmark + left_over_samples]
+            buf[jj] = edf.signals[jj].data[bookmark : bookmark + left_over_samples]
         eegdata[:, bookmark : bookmark + left_over_samples] = buf[
             :, 0:left_over_samples
         ]
@@ -434,7 +440,7 @@ def edf_block_iter_generator(edf, nsamples, samples_per_chunk, dtype="int32"):
     for ii in range(nchunks):
         for cc in range(nchan):
             # With edfio, access digital values directly
-            buf[cc] = edf.signals[cc].digital[mark:mark + samples_per_chunk]
+            buf[cc] = edf.signals[cc].digital[mark : mark + samples_per_chunk]
 
         yield (buf, mark, samples_per_chunk)
         mark += samples_per_chunk
@@ -442,7 +448,9 @@ def edf_block_iter_generator(edf, nsamples, samples_per_chunk, dtype="int32"):
     # left overs
     if left_over_samples > 0:
         for cc in range(nchan):
-            buf[cc, :left_over_samples] = edf.signals[cc].digital[mark:mark + left_over_samples]
+            buf[cc, :left_over_samples] = edf.signals[cc].digital[
+                mark : mark + left_over_samples
+            ]
 
         yield (buf[:, 0:left_over_samples], mark, left_over_samples)
 
@@ -507,7 +515,7 @@ def create_simple_anonymous_header(header):
     if hdr["patientcode"]:
         hdr["patientcode"] = "00000000"
     dob = hdr["birthdate_date"]
-    if not hdr["birthdate_date"]: # 0-len string or None
+    if not hdr["birthdate_date"]:  # 0-len string or None
         age_time_offset = datetime.timedelta(seconds=0)
     else:
         age_time_offset = hdr["birthdate_date"] - DEFAULT_BIRTHDATE
@@ -524,7 +532,7 @@ def create_simple_anonymous_header(header):
 
     hdr["admincode"] = ""
     hdr["technician"] = ""
-    hdr['patient_additional'] = ""
+    hdr["patient_additional"] = ""
     debug(f"anonymized hdr:")
     debug(pprint.pformat(hdr))
     return hdr
@@ -642,22 +650,40 @@ def edf2hdf(fn, outfn="", hdf_dir="", anonymize=False):
         "filetype": filetype,
         "patient_name": patient.name if patient and patient.name else "X",
         "patientcode": patient.code if patient and patient.code else "X",
-        "studyadmincode": recording.hospital_administration_code if recording and recording.hospital_administration_code else "X",
+        "studyadmincode": recording.hospital_administration_code
+        if recording and recording.hospital_administration_code
+        else "X",
         "gender": patient.sex if patient and patient.sex else "X",
         "signals_in_file": edf.num_signals,
         "datarecords_in_file": edf.num_data_records,
-        "file_duration_100ns": int(edf.duration * 10_000_000),  # Convert seconds to 100ns units
+        "file_duration_100ns": int(
+            edf.duration * 10_000_000
+        ),  # Convert seconds to 100ns units
         "file_duration_seconds": edf.duration,
         "startdate_date": startdate,
         "start_datetime": datetime.datetime.combine(startdate, edf.starttime),
-        "starttime_subsecond_offset": edf.starttime.microsecond / 1_000_000 if edf.starttime.microsecond else 0,
+        "starttime_subsecond_offset": edf.starttime.microsecond / 1_000_000
+        if edf.starttime.microsecond
+        else 0,
         "birthdate_date": birthdate,
-        "patient_additional": patient.additional if patient and patient.additional else "",
-        "admincode": recording.hospital_administration_code if recording and recording.hospital_administration_code else "X",
-        "technician": recording.investigator_technician_code if recording and recording.investigator_technician_code else "X",
-        "equipment": recording.equipment_code if recording and recording.equipment_code else "X",
-        "recording_additional": recording.additional if recording and recording.additional else "",
-        "datarecord_duration_100ns": int(edf.data_record_duration * 10_000_000),  # Convert seconds to 100ns units
+        "patient_additional": patient.additional
+        if patient and patient.additional
+        else "",
+        "admincode": recording.hospital_administration_code
+        if recording and recording.hospital_administration_code
+        else "X",
+        "technician": recording.investigator_technician_code
+        if recording and recording.investigator_technician_code
+        else "X",
+        "equipment": recording.equipment_code
+        if recording and recording.equipment_code
+        else "X",
+        "recording_additional": recording.additional
+        if recording and recording.additional
+        else "",
+        "datarecord_duration_100ns": int(
+            edf.data_record_duration * 10_000_000
+        ),  # Convert seconds to 100ns units
     }
     # debug
     debug("original header")
@@ -730,9 +756,9 @@ def edf2hdf(fn, outfn="", hdf_dir="", anonymize=False):
         # Convert to 100ns units
         onset_100ns = int(ann.onset * 10_000_000)
         # Duration as bytes string
-        duration_bytes = str(ann.duration).encode('utf-8') if ann.duration else b''
+        duration_bytes = str(ann.duration).encode("utf-8") if ann.duration else b""
         # Text as bytes
-        text_bytes = ann.text.encode('utf-8') if ann.text else b''
+        text_bytes = ann.text.encode("utf-8") if ann.text else b""
         annotations_b.append([onset_100ns, duration_bytes, text_bytes])
 
     # debug("annotations_b::\n")
@@ -789,7 +815,9 @@ def edf2hdf(fn, outfn="", hdf_dir="", anonymize=False):
             patient_name=header["patient_name"],
             patientcode=header["patientcode"],
             gender=header["gender"],
-            birthdate_isostring=str(header["birthdate_date"]) if header["birthdate_date"] else "",
+            birthdate_isostring=str(header["birthdate_date"])
+            if header["birthdate_date"]
+            else "",
             # gestational_age_at_birth_days
             # born_premature
             patient_additional=header["patient_additional"],
