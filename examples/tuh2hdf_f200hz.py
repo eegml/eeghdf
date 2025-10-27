@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 """Convert Temple EEG Corpus Files (TUH) files to eehdf format
-    and downsample them to 200Hz sample rate
-    
-      Raises:
-        Exception: [description]
-        ValidationError: [description]
+and downsample them to 200Hz sample rate
 
-    Returns:
-        file-stem.eeg.h5 -- eeg waveform file in eeg hdf format 
+  Raises:
+    Exception: [description]
+    ValidationError: [description]
+
+Returns:
+    file-stem.eeg.h5 -- eeg waveform file in eeg hdf format
 """
+
 from __future__ import (
     division,
     absolute_import,
@@ -37,7 +38,7 @@ from builtins import range  # range and switch xrange -> range
 
 import edflib
 import eeghdf
-import scikits.samplerate as sk_samplerate # see https://github.com/cleemesser/samplerate
+import scikits.samplerate as sk_samplerate  # see https://github.com/cleemesser/samplerate
 
 
 # really need to check the original data type and then save as that datatype along with the necessary conversion factors
@@ -223,6 +224,7 @@ def normalize_tuh_signal_label(label):
         return LPCH_TO_STD_LABELS_STRIP[uplabel]
     else:
         return label
+
 
 def edf_block_iter_generator(edf_file, nsamples, samples_per_chunk, dtype="int32"):
     """
@@ -686,7 +688,7 @@ def edf2hdf_f200(
     only a float32 physical units of the signal will be kept I think
     otherwise using fairly straightforward mapping
     return True if successful
-    
+
     @database_sourcel_label tells us which database it came from LPCH_NK or STANFORD_NK
        this is important!
     """
@@ -705,7 +707,6 @@ def edf2hdf_f200(
         # all the data point related stuff
 
     with edflib.EdfReader(fn) as ef:
-
         # read all EDF+ header information in just the way I want it
         header = {
             "file_name": os.path.basename(fn),
@@ -943,7 +944,6 @@ def edf2hdf_f200(
             signal_text_labels_tuh_normalized = [
                 normalize_tuh_signal_label(label) for label in signal_text_labels
             ]
-
 
             rec = eegf.create_masked_record_block(
                 record_duration_seconds=header["file_duration_seconds"],

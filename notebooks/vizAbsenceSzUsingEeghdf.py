@@ -92,7 +92,7 @@ print(f"eegf.electrode_labels: \n\n{eegf.electrode_labels}")
 eegf.hdf
 
 
-# #### Now we look at how the waveform data is accessed. 
+# #### Now we look at how the waveform data is accessed.
 #  It can be accessed as the sampled numbers by using eegf.rawsignals[ch,sample]
 #  (usually int16 or int32)
 
@@ -119,7 +119,7 @@ plt.xlabel("sec")
 #
 #  [More work is being done in the eegml eegvis package for more sophisticated visualization.]
 
-electrode_labels = eegf.shortcut_elabels # these are nicer to use for plotting
+electrode_labels = eegf.shortcut_elabels  # these are nicer to use for plotting
 
 #  #### Simple visualization of EEG (brief absence seizure)
 
@@ -141,7 +141,7 @@ plt.title("Absence Seizure")
 #  It was not a coincidence that I chose this time in the record. I used the annotations to focus on portion of the record which was marked as having a seizure.
 #
 #  You can access the clinical annotations.
-#  If you need them, you can get the raw list using 
+#  If you need them, you can get the raw list using
 #  ```
 #  eegf._annotation_text  and  eegf._annotation_start100ns
 #  ```
@@ -165,7 +165,6 @@ eegf.edf_annotations_df
 eegf.annotations_contain("sz", case=False)
 
 
-
 # +
 print("matplotlib.__version__:", matplotlib.__version__)
 print("eeghdf.__version__", eeghdf.__version__)
@@ -173,6 +172,3 @@ print("pandas.__version__:", pd.__version__)
 
 
 # -
-
-
-

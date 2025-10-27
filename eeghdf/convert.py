@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 some basic conversion utilities
-I'm not sure how useful these will be as every source may require some variation in conversion 
+I'm not sure how useful these will be as every source may require some variation in conversion
 """
 
 # convert eeg-hdf storage to mne raw object
@@ -70,7 +70,9 @@ def sechdf1020_to_mne(hf):
 
     # info - mne.create_info(unum_uchans, hf.sample_frequency)
     info = mne.create_info(
-        uchan_names, hf.sample_frequency, channel_types, # montage="standard_1020"
+        uchan_names,
+        hf.sample_frequency,
+        channel_types,  # montage="standard_1020"
     )
     ten_twenty_montage = mne.channels.make_standard_montage("standard_1020")
     print(info)
@@ -142,7 +144,7 @@ def hdf2mne(hf):
 
     @hf is a generic eeghdf Eeghdf object opened on a file
 
-    if you are using the stanford eeg corpus (SEC) then 
+    if you are using the stanford eeg corpus (SEC) then
     you should use sechdf1020_to_mne as this can assume more things
     can put more info in the raw object.
 
@@ -180,7 +182,7 @@ def hdf2mne(hf):
 
     def label2type(name):
         """lots of assumptions to use this as name is already limited
-        it is more or less based upon the "standard texts" the edf 
+        it is more or less based upon the "standard texts" the edf
         specification"""
         try:
             if (
@@ -231,7 +233,9 @@ def hdf2mne(hf):
     # finally remove the prefix 'EEG' from the label names
     # mne.create_info no longer includes montage argument
     info = mne.create_info(
-        uchan_names, hf.sample_frequency, channel_types,
+        uchan_names,
+        hf.sample_frequency,
+        channel_types,
     )
 
     print(info)
@@ -254,9 +258,9 @@ def hdf2mne(hf):
     # TODO: transfer recording and patient details. API ref
     # url: https://martinos.org/mne/dev/generated/mne.Info.html#mne.Info
     # TODO: next need to figure out how to add the events/annotations
-    #info["custom_ref_applied"] = True  # for SEC this is true
+    # info["custom_ref_applied"] = True  # for SEC this is true
     # use inst.set_eeg_reference() instead.
-    
+
     # events are a list of dict events list of dict:
 
     # channels : list of int

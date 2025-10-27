@@ -4,8 +4,9 @@ Features include:
   - efficient storage of EEG data
   - reading portions of EEG data without reading the whole file using a numpy-array like interface
   - streaming from S3 buckets using the ROS3 driver with S3_session support
-  
+
 """
+
 from __future__ import absolute_import
 
 from .writer import EEGHDFWriter

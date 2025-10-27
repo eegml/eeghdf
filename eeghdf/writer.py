@@ -107,7 +107,6 @@ class EEGHDFWriter(object):
         born_premature="unknown",  # true,false, unknown
         patient_additional="",
     ):  # to support edf
-
         patient = self.hdf.create_group("patient")  # subject
 
         self.patient = patient
@@ -230,7 +229,7 @@ class EEGHDFWriter(object):
                 # chunks=(number_channels,sample_frequency),
                 chunks=True,
                 fletcher32=True,
-                compression="gzip"  # most universal
+                compression="gzip",  # most universal
                 # maxshape=(256,None)
             )
         # handles up to 32
@@ -243,7 +242,7 @@ class EEGHDFWriter(object):
                 # # if wanted 1 second chunks
                 chunks=True,
                 fletcher32=True,
-                compression="gzip"  # most universal
+                compression="gzip",  # most universal
                 # maxshape=(256,None)
             )
         record.attrs["patient_age_days"] = patient_age_days
@@ -278,7 +277,6 @@ class EEGHDFWriter(object):
         studyadmincode="",
         signals_mask=None,
     ):
-
         """@signals_mask is a list or array which evalutes to True or False
         depending on if a signal should be inlcuded in the eeghdf file
         """
@@ -572,7 +570,6 @@ def test_stream_dig_signal_to_record_block():
 
     TEST_EEGHDF_FILENAME = "test.eeg.hdf5"
     with EEGHDFWriter(hdf_file_name=TEST_EEGHDF_FILENAME, fileattr="w") as hf:
-
         # get a fake record block with no other info
         record = hf.get_new_record_block()
         record.create_dataset(

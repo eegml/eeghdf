@@ -3,6 +3,7 @@
 functions to help with reading eeghdf files
 versions 1...
 """
+
 # TODO: rename electrode -> signal (eeg channel) need to distinguish
 # python 2/3 compatibility - write as if in python 3.5
 from __future__ import division, absolute_import
@@ -20,8 +21,8 @@ def record_edf_annotations_to_lists(raw_edf_annotations):
     """
     usage:
 
-    >>> rec = hdf['record-0']
-    >>> texts, times_100ns = record_edf_annotations_to_lists(rec['edf_annotations'])
+    >>> rec = hdf["record-0"]
+    >>> texts, times_100ns = record_edf_annotations_to_lists(rec["edf_annotations"])
     """
     byte_texts = raw_edf_annotations["texts"]  # still byte encoded
     antexts = [s.decode("utf-8") for s in byte_texts[:]]
@@ -433,7 +434,8 @@ class Eeghdf_ver1:
         if self._annotations_df is None:
             starts100ns = self._annotation_start100ns
             start_time_sec = [
-                xx / 10**7 for xx in starts100ns  # 10**7 * 100ns = 1sec
+                xx / 10**7
+                for xx in starts100ns  # 10**7 * 100ns = 1sec
             ]
             df = pd.DataFrame(data=self._annotation_text, columns=["text"])
             df["starts_sec"] = start_time_sec
@@ -445,7 +447,6 @@ class Eeghdf_ver1:
 
     @property
     def edf_annotations_sec(self):
-
         """compute this on demand:
         return a list of tuples
         [(start, duration, description)...]

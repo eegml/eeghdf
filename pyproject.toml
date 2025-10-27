@@ -20,3 +20,7 @@ test = ["pytest", "dynaconf>=3.0"]
 
 [project.urls]
 Home = "https://github.com/eegml/eeghdf"
+
+[tool.ruff.format]
+line-ending = "lf"
+docstring-code-format = true
