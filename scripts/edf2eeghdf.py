@@ -1,3 +1,4 @@
+#!/home/clee/.conda/envs/edflib/bin/python
 # -*- coding: utf-8 -*-
 """This will convert an edf file into one encoded in the eeghdf format
 it assumes the incoming file has a extension like .edf or .edf+ or .bdf

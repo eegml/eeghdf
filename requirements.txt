@@ -2,3 +2,5 @@ h5py
 future
 numpy
 pandas
+arrow
+python-dateutil
