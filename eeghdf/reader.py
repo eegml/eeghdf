@@ -94,11 +94,10 @@ class PhysSignal:
     """This does a very limited imitation of the normal hdf signal buffer
     with additional transformation of the returned array coverted to be in physical units
     e.g. uV or mV
-    @s2u is the array of scaling factors turning samples to units
+    @s2u is the array of scaling factors turning samples to units (thus s2u)
     @S2U = diagonal(s2u)
     @offset is/will be offset to add to sample before scaling
     data is hdf dataset of sampled data(or numpy array) to transform
-    First implement the zero offset version
 
     $Y = S2U [X + Offset]$
 
@@ -109,6 +108,17 @@ class PhysSignal:
     phys_signals[a:b, c]
 
     Anything else has not been tested - I am only testing the first two values of the tuple
+
+    The general conversion formula for the ADC values is
+    physical_range = (physical_maximum - physical_minimum)
+    digital_range = (digital_maximum - digital_minimum)
+    scale = physical_range / digital_range  # this is the basis of the s2u matrix
+    # I think there are two ways to calculate the offset
+    offset = physcal_minimum - (digital_minimum * scale)
+    # OR
+    offset = phyiscal_maximum/scale - digital_maximum
+    # this leads to:
+    phys_signal = scale * dig_signal + offset
     """
 
     def __init__(self, data, s2u, S2U, offset):
