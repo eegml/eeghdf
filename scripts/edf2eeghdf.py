@@ -1,4 +1,3 @@
-#!/home/clee/.conda/envs/edflib/bin/python
 # -*- coding: utf-8 -*-
 """This will convert an edf file into one encoded in the eeghdf format
 it assumes the incoming file has a extension like .edf or .edf+ or .bdf
@@ -22,9 +21,8 @@ with different sampling rates in different channels
   Skipping (output already exists): <input_file> -> <output_file>
 
   Usage examples:
-  - python convert_edfs.py -d /path/to/edfs - Skips files that already have converted output
-  - python convert_edfs.py -d /path/to/edfs --force-convert - Converts all files, overwriting existing outputs
-  - python convert_edfs.p
+  - python edf2eeghdf.py -d /path/to/edfs - Skips files that already have converted output
+  - python edf2eeghdf.py -d /path/to/edfs --force-convert - Converts all files, overwriting existing outputs
 
 """
 
