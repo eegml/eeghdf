@@ -9,6 +9,23 @@ to a standard which looks nicer. Otherwise they are left unchanged.
 
 This will not handle all sorts of EDF files - spcifically it will not handle ones
 with different sampling rates in different channels
+
+- Added -d or --directory argument which will search a directory recursively for all edf/bdf files
+
+- Added --force-convert / -f argument - A new command line flag that forces conversion even if the output file exists
+
+- Added existence check for directory mode - When processing a directory of EDF files, each output file is checked before conversion. If it exists (and --force-convert is not set), it prints a
+  skip message.
+-  Added existence check for single file mode - Same logic for when converting a single file.
+
+  The skip message format is:
+  Skipping (output already exists): <input_file> -> <output_file>
+
+  Usage examples:
+  - python convert_edfs.py -d /path/to/edfs - Skips files that already have converted output
+  - python convert_edfs.py -d /path/to/edfs --force-convert - Converts all files, overwriting existing outputs
+  - python convert_edfs.p
+
 """
 
 from __future__ import (
@@ -41,6 +58,11 @@ from builtins import range  # range and switch xrange -> range
 
 import edflib  # have several choices for reading edf, this is my library version 0.76 and 0.8 work
 import eeghdf
+import edflib  # have several choices for reading edf, this is my library version 0.76 and 0.8 work
+import eeghdf
+
+
+# debug = print
 
 
 # debug = print
@@ -49,6 +71,7 @@ def debug(*args):
 
 
 DEFAULT_EXT = ".eeg.h5"  # default ending for files in the format defined by eeghdf
+DEFAULT_BIRTHDATE = datetime.date(1900, 1, 1)
 DEFAULT_BIRTHDATE = datetime.date(1900, 1, 1)
 
 # really need to check the original data type and then save as that datatype along with the necessary conversion factors
@@ -595,6 +618,7 @@ def edf2hdf(fn, outfn="", hdf_dir="", anonymize=False):
     convert an edf file to hdf5 using fairly straightforward mapping
     return True if successful
 
+
     by default (if outfn and hdf_dir are not set)
        the output is put in the same directory as the input file
     you can also specify the output file (full path) by setting outfn directly
@@ -642,6 +666,8 @@ def edf2hdf(fn, outfn="", hdf_dir="", anonymize=False):
                 ef.starttime_second,
             ),
             "starttime_subsecond_offset": ef.starttime_subsecond,
+            "birthdate_date": ef.birthdate_date,  # str
+            "patient_additional": ef.patient_additional,  # str
             "birthdate_date": ef.birthdate_date,  # str
             "patient_additional": ef.patient_additional,  # str
             "admincode": ef.admincode,  # usually the study eg. C13-100
@@ -840,10 +866,23 @@ def test_edf2hdf_info():
 
 if __name__ == "__main__":
     import argparse
+    import glob
 
     parser = argparse.ArgumentParser(description=__doc__)
 
-    parser.add_argument("filename")
+    parser.add_argument(
+        "filename",
+        nargs="?",
+        default=None,
+        help="input EDF file (required if --directory not specified)",
+    )
+    parser.add_argument(
+        "--directory",
+        "-d",
+        type=str,
+        default=None,
+        help="directory containing EDF files to convert (if specified, filename is ignored)",
+    )
     parser.add_argument(
         "--output-file", "-o", type=str, help="name of output file", default=""
     )
@@ -854,7 +893,67 @@ if __name__ == "__main__":
         default=False,
         help="add flag to do simple anonymization of file patient information",
     )
+    parser.add_argument(
+        "--dry-run",
+        "-n",
+        action="store_true",
+        default=False,
+        help="print what would be done without actually converting files",
+    )
+    parser.add_argument(
+        "--force-convert",
+        "-f",
+        action="store_true",
+        default=False,
+        help="force conversion even if output file already exists",
+    )
     args = parser.parse_args()
     debug(args)
 
-    edf2hdf(args.filename, outfn=args.output_file, anonymize=args.anonymize)
+    if args.directory:
+        # Process all EDF files in the directory recursively
+        edf_files = glob.glob(
+            os.path.join(args.directory, "**", "*.edf"), recursive=True
+        )
+        edf_files += glob.glob(
+            os.path.join(args.directory, "**", "*.EDF"), recursive=True
+        )
+        edf_files += glob.glob(
+            os.path.join(args.directory, "**", "*.bdf"), recursive=True
+        )
+        edf_files += glob.glob(
+            os.path.join(args.directory, "**", "*.BDF"), recursive=True
+        )
+        edf_files = list(set(edf_files))  # Remove duplicates
+
+        if not edf_files:
+            print(f"No EDF/BDF files found in {args.directory}")
+            sys.exit(1)
+
+        print(f"Found {len(edf_files)} EDF/BDF files to convert")
+        for edf_file in sorted(edf_files):
+            outfn = os.path.splitext(edf_file)[0] + DEFAULT_EXT
+            if args.dry_run:
+                print(f"Would convert: {edf_file} -> {outfn}")
+            elif os.path.exists(outfn) and not args.force_convert:
+                print(f"Skipping (output already exists): {edf_file} -> {outfn}")
+            else:
+                print(f"Converting: {edf_file}")
+                try:
+                    edf2hdf(edf_file, anonymize=args.anonymize)
+                except Exception as e:
+                    print(f"Error converting {edf_file}: {e}")
+    else:  # single file mode
+        if args.filename is None:
+            parser.error("filename is required when --directory is not specified")
+        outfn = (
+            args.output_file
+            if args.output_file
+            else os.path.splitext(args.filename)[0] + DEFAULT_EXT
+        )
+        if args.dry_run:
+            print(f"Would convert: {args.filename} -> {outfn}")
+        elif os.path.exists(outfn) and not args.force_convert:
+            print(f"Skipping (output already exists): {args.filename} -> {outfn}")
+        else:
+            edf2hdf(args.filename, outfn=args.output_file, anonymize=args.anonymize)
